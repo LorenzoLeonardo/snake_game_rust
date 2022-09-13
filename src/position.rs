@@ -1,12 +1,11 @@
-
 pub struct Coordinates {
-    pub x: i32,
-    pub y: i32,
+    pub _x: i32,
+    pub _y: i32,
 }
 
-
 impl Coordinates {
-    pub fn get_position(&self) -> &Coordinates {
-        self 
+    // Contruct Coordinates
+    pub fn new (x: i32, y: i32) -> Coordinates {
+        Coordinates {_x: x, _y: y}
     }
 }
