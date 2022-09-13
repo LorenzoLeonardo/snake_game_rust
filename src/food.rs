@@ -1,19 +1,23 @@
+use crate::position::Coordinates;
+use rand::Rng;
 
-
-// A struct with two fields
-
-
-pub fn create_food() {
-    println!("create snake food");
+pub struct Food {
+    pub _food_position: Coordinates,
+    _is_bonus: bool,
 }
 
-
-pub fn is_bonus_food(lhs: u32, rhs: u32) -> bool {
-    // Corner case, early return
-    if rhs == 0 {
-        return false;
+impl Food {
+    // Contruct Food
+    pub fn new (food_position: Coordinates, is_bonus: bool) -> Food {
+        Food {_food_position: food_position, _is_bonus: is_bonus}
     }
 
-    // This is an expression, the `return` keyword is not necessary here
-    lhs % rhs == 0
+    pub fn create_food (&mut self) {
+        self._food_position._x = rand::thread_rng().gen_range(0..100);
+        self._food_position._y = rand::thread_rng().gen_range(0..100);
+    }
+
+    pub fn is_bonus_food(&self) -> bool {
+       self._is_bonus
+    }
 }
