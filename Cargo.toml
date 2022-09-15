@@ -7,3 +7,5 @@ edition = "2021"
 
 [dependencies]
 rand = "0.8"
+termion = "*"
+device_query = "1.1.1"
