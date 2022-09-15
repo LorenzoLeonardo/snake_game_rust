@@ -27,17 +27,15 @@ impl SnakeGame
     pub fn run (&mut self)
     {
         let mut snake = Snake::new();
-        let mut dir = SnakeDirection::RIGHT;
         let  ref_snake = &mut snake;
         let delay = time::Duration::from_millis(50);
-
-        let mut flag: bool = true;
         let mut food = Food::new();
 
         self.clear();
         food.init_food(self._screen_size);
         food.create_food();
         ref_snake.init_snake(self._screen_size);
+        eprint!("{}{}",termion::cursor::Hide, termion::cursor::Goto(1,1));
         while ref_snake._is_alive && self.listen_for_key_press()
         {
             self.draw_snake(ref_snake, self._dir.clone());
@@ -52,13 +50,12 @@ impl SnakeGame
             thread::sleep(delay);
         }
         self.clear();
-        eprint!("{}{}",termion::cursor::Hide, termion::cursor::Goto(1,1));
+        eprint!("{}{}",termion::cursor::Restore, termion::cursor::Goto(1,1));
     }
 
     fn listen_for_key_press(&mut self) -> bool
     {
         let device_state = DeviceState::new();
-        let mut flag = true;
         let keys: Vec<Keycode> = device_state.get_keys();
 
         if !keys.is_empty(){
@@ -78,11 +75,6 @@ impl SnakeGame
             }
         }
         return true;
-    }
-
-    fn gotoxy(&mut self, x: i32, y: i32)
-    {
-        eprint!("{}", termion::cursor::Goto(x.try_into().unwrap(), y.try_into().unwrap()));
     }
 
     fn clear(&mut self)

@@ -54,7 +54,7 @@ impl Snake
         let mut i = 0;
         while i < self._snake_body.len()
         {
-            eprint!("{}{}",termion::cursor::Hide, termion::cursor::Goto(self._snake_body[i]._x.try_into().unwrap(), self._snake_body[i]._y.try_into().unwrap()));
+            eprint!("{}", termion::cursor::Goto(self._snake_body[i]._x.try_into().unwrap(), self._snake_body[i]._y.try_into().unwrap()));
             eprint!("@");
             i +=1 ;
         }
@@ -67,7 +67,6 @@ impl Snake
             SnakeDirection::LEFT => self.crawl_left(),
             SnakeDirection::UP => self.crawl_up(),
             SnakeDirection::DOWN => self.crawl_down(),
-            _ => println!("Others"),
         }
         self._head = self._snake_body[0].clone();
         self._tail= self._snake_body[self._length - 1].clone();
