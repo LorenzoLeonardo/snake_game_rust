@@ -1,6 +1,5 @@
 use crate::position::Coordinates;
 
-
 #[derive(PartialEq)]
 pub enum SnakeDirection
 {
@@ -72,6 +71,11 @@ impl Snake
         self._tail= self._snake_body[self._length - 1].clone();
 
         self.check_body_collision();
+    }
+
+    pub fn remove_trail(&mut self)
+    {
+        eprint!("{} ", termion::cursor::Goto(self._tail._x.try_into().unwrap(), self._tail._y.try_into().unwrap()));
     }
 
     pub fn set_direction(&mut self, dir: SnakeDirection) {

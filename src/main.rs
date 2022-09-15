@@ -27,30 +27,29 @@ impl SnakeGame
     pub fn run (&mut self)
     {
         let mut snake = Snake::new();
-        let  ref_snake = &mut snake;
-        let delay = time::Duration::from_millis(50);
+        let ref_snake = &mut snake;
         let mut food = Food::new();
+        let ref_food = &mut food;
+        let delay = time::Duration::from_millis(50);
 
-        self.clear();
-        food.init_food(self._screen_size);
-        food.create_food();
+        ref_food.init_food(self._screen_size);
+        ref_food.create_food();
         ref_snake.init_snake(self._screen_size);
-        eprint!("{}{}",termion::cursor::Hide, termion::cursor::Goto(1,1));
         while ref_snake._is_alive && self.listen_for_key_press()
         {
+            self.clear();
             self.draw_snake(ref_snake, self._dir.clone());
-            food.display_food();
-            if (ref_snake._head._x == food._food_position._x) &&
-               (ref_snake._head._y == food._food_position._y) 
+            self.draw_food(ref_food);
+
+            if (ref_snake._head._x == ref_food._food_position._x) &&
+               (ref_snake._head._y == ref_food._food_position._y)
             {
-                ref_snake.grow_snake(food._food_position.clone());
-                food.create_food();
+                ref_snake.grow_snake(ref_food._food_position.clone());
+                ref_food.create_food();
             }
 
             thread::sleep(delay);
         }
-        self.clear();
-        eprint!("{}{}",termion::cursor::Restore, termion::cursor::Goto(1,1));
     }
 
     fn listen_for_key_press(&mut self) -> bool
@@ -58,7 +57,7 @@ impl SnakeGame
         let device_state = DeviceState::new();
         let keys: Vec<Keycode> = device_state.get_keys();
 
-        if !keys.is_empty(){
+        if !keys.is_empty() {
             for key in keys.iter() {
 
                 if (key.to_string().as_str() == "Left") && (self._dir != SnakeDirection::RIGHT) {
@@ -84,17 +83,25 @@ impl SnakeGame
 
     fn draw_snake(&mut self, snake: &mut Snake, dir: SnakeDirection)
     {
-        self.clear();
-        eprint!("{}{} ",termion::cursor::Hide, termion::cursor::Goto(snake._tail._x.try_into().unwrap(), snake._tail._y.try_into().unwrap()));
+        snake.remove_trail();
         snake.set_direction(dir.clone());
         snake.crawl_snake();
         snake.display_snake();
     }
+
+    fn draw_food(&mut self, food: &mut Food)
+    {
+        food.display_food();
+    }
 }
 
-pub fn main() {
-
+pub fn main()
+{
     let mut main_game = SnakeGame::new(Coordinates { _x: 80, _y: 25 }, SnakeDirection::RIGHT);
 
+    eprint!("{}", termion::clear::All);
+    eprint!("{}",termion::cursor::Hide);
     main_game.run();
+    eprint!("{}{}",termion::cursor::Restore, termion::cursor::Goto(1,1));
+    eprint!("{}", termion::clear::All);
 }
