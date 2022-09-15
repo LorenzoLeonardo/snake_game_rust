@@ -1,5 +1,5 @@
 [package]
-name = "SnakeGame-Rust"
+name = "snake_game_rust"
 version = "0.1.0"
 edition = "2021"
 
