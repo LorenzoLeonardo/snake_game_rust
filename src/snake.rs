@@ -1,5 +1,7 @@
 use crate::position::Coordinates;
 
+
+#[derive(PartialEq)]
 pub enum SnakeDirection
 {
     UP,
@@ -52,7 +54,8 @@ impl Snake
         let mut i = 0;
         while i < self._snake_body.len()
         {
-            eprint!("{}0", termion::cursor::Goto(self._snake_body[i]._x.try_into().unwrap(), self._snake_body[i]._y.try_into().unwrap()));
+            eprint!("{}{}",termion::cursor::Hide, termion::cursor::Goto(self._snake_body[i]._x.try_into().unwrap(), self._snake_body[i]._y.try_into().unwrap()));
+            eprint!("@");
             i +=1 ;
         }
     }
@@ -68,6 +71,8 @@ impl Snake
         }
         self._head = self._snake_body[0].clone();
         self._tail= self._snake_body[self._length - 1].clone();
+
+        self.check_body_collision();
     }
 
     pub fn set_direction(&mut self, dir: SnakeDirection) {
@@ -129,6 +134,21 @@ impl Snake
         if self._snake_body[0]._y >= self._xy_limit._y
         {
             self._snake_body[0]._y = 2;
+        }
+    }
+
+    fn check_body_collision(&mut self)
+    {
+        let mut i = 1;
+        while  i < self._length
+        {
+            if (self._snake_body[i]._x == self._head._x) &&
+                (self._snake_body[i]._y == self._head._y)
+            {
+                self._is_alive = false;
+                break;
+            }
+            i += 1;
         }
     }
 }
