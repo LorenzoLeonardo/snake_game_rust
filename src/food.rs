@@ -1,3 +1,7 @@
+/* Created by: Lorenzo Leonardo
+ * Email: enzotechcomputersolutions@gmail.com
+ * Date : September 15, 2022
+ */
 use crate::position::Coordinates;
 use rand::Rng;
 
