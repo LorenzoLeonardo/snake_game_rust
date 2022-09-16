@@ -27,10 +27,10 @@ impl SnakeGame
     pub fn run (&mut self)
     {
         let mut snake = Snake::new();
-        let ref_snake = &mut snake;
         let mut food = Food::new();
+        let ref_snake = &mut snake;
         let ref_food = &mut food;
-        let delay = time::Duration::from_millis(50);
+        let delay = time::Duration::from_millis(35);
 
         ref_food.init_food(self._screen_size);
         ref_food.create_food();
@@ -38,13 +38,12 @@ impl SnakeGame
         while ref_snake._is_alive && self.listen_for_key_press()
         {
             self.clear();
-            self.draw_snake(ref_snake, self._dir.clone());
+            self.draw_snake(ref_snake, self._dir);
             self.draw_food(ref_food);
 
-            if (ref_snake._head._x == ref_food._food_position._x) &&
-               (ref_snake._head._y == ref_food._food_position._y)
+            if ref_snake._head == ref_food._food_position
             {
-                ref_snake.grow_snake(ref_food._food_position.clone());
+                ref_snake.grow_snake(ref_food._food_position);
                 ref_food.create_food();
             }
 
@@ -84,7 +83,7 @@ impl SnakeGame
     fn draw_snake(&mut self, snake: &mut Snake, dir: SnakeDirection)
     {
         snake.remove_trail();
-        snake.set_direction(dir.clone());
+        snake.set_direction(dir);
         snake.crawl_snake();
         snake.display_snake();
     }
@@ -100,8 +99,9 @@ pub fn main()
     let mut main_game = SnakeGame::new(Coordinates { _x: 80, _y: 25 }, SnakeDirection::RIGHT);
 
     eprint!("{}", termion::clear::All);
-    eprint!("{}",termion::cursor::Hide);
+    eprint!("{}", termion::cursor::Hide);
     main_game.run();
-    eprint!("{}{}",termion::cursor::Restore, termion::cursor::Goto(1,1));
     eprint!("{}", termion::clear::All);
+    eprint!("{}", termion::cursor::Restore);
+    eprint!("{}", termion::cursor::Goto(1,1));
 }

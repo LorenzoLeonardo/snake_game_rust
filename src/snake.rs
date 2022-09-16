@@ -43,9 +43,9 @@ impl Snake
         self._snake_body.push(Coordinates{_x: 2,_y: 2});
         self._snake_body.push(Coordinates{_x: 1,_y: 2});
         self._length = self._snake_body.len();
-        self._xy_limit = xy_limit.clone();
-        self._head = self._snake_body[0].clone();
-        self._tail= self._snake_body[self._length - 1].clone();
+        self._xy_limit = xy_limit;
+        self._head = self._snake_body[0];
+        self._tail= self._snake_body[self._length - 1];
     }
 
     pub fn display_snake(&mut self)
@@ -67,8 +67,8 @@ impl Snake
             SnakeDirection::UP => self.crawl_up(),
             SnakeDirection::DOWN => self.crawl_down(),
         }
-        self._head = self._snake_body[0].clone();
-        self._tail= self._snake_body[self._length - 1].clone();
+        self._head = self._snake_body[0];
+        self._tail= self._snake_body[self._length - 1];
 
         self.check_body_collision();
     }
@@ -83,15 +83,15 @@ impl Snake
     }
 
     pub fn grow_snake(&mut self, pos: Coordinates) {
-        self._snake_body.push(pos.clone());
-        self._tail = pos.clone();
+        self._snake_body.push(pos);
+        self._tail = pos;
         self._length = self._snake_body.len();
     }
 
     fn crawl_right(&mut self) {
         let mut i = self._length - 1;
         while i > 0 {
-            self._snake_body[i] = self._snake_body[i - 1].clone();
+            self._snake_body[i] = self._snake_body[i - 1];
             i -= 1;
         }
         self._snake_body[0]._x += 1;
@@ -104,7 +104,7 @@ impl Snake
     fn crawl_left(&mut self) {
         let mut i = self._length - 1;
         while i > 0 {
-            self._snake_body[i] = self._snake_body[i - 1].clone();
+            self._snake_body[i] = self._snake_body[i - 1];
             i -= 1;
         }
         self._snake_body[0]._x -= 1;
@@ -117,7 +117,7 @@ impl Snake
     fn crawl_up(&mut self) {
         let mut i = self._length - 1;
         while i > 0 {
-            self._snake_body[i] = self._snake_body[i - 1].clone();
+            self._snake_body[i] = self._snake_body[i - 1];
              i -= 1;
         }
         self._snake_body[0]._y -= 1;
@@ -130,7 +130,7 @@ impl Snake
     fn crawl_down(&mut self) {
         let mut i = self._length - 1;
         while i > 0 {
-            self._snake_body[i] = self._snake_body[i - 1].clone();
+            self._snake_body[i] = self._snake_body[i - 1];
             i -= 1;
         }
         self._snake_body[0]._y += 1;
@@ -145,8 +145,7 @@ impl Snake
         let mut i = 1;
         while  i < self._length
         {
-            if (self._snake_body[i]._x == self._head._x) &&
-                (self._snake_body[i]._y == self._head._y)
+            if self._snake_body[i] == self._head
             {
                 self._is_alive = false;
                 break;

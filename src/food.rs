@@ -16,7 +16,7 @@ impl Food {
     
     pub fn init_food(&mut self, limit: Coordinates)
     {
-        self._xy_limit = limit.clone();
+        self._xy_limit = limit;
     }
 
     pub fn create_food (&mut self)
