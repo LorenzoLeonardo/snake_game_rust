@@ -2,14 +2,18 @@
  * Email: enzotechcomputersolutions@gmail.com
  * Date : September 15, 2022
  */
-#[derive(PartialEq)]
+#[derive(PartialEq,Clone,Copy)]
 pub struct Coordinates {
-    pub _x: i32,
-    pub _y: i32,
+    pub x: u32,
+    pub y: u32,
 }
-impl Copy for Coordinates {}
-impl Clone for Coordinates {
-    fn clone(&self) -> Self {
-        *self
+
+impl Coordinates {
+
+    pub fn new(x:u32, y:u32) -> Self {
+        Self {
+            x:x,
+            y:y
+        }
     }
 }

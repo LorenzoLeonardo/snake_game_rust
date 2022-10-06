@@ -34,18 +34,18 @@ impl Snake
 {
     pub fn new () -> Snake 
     {
-        Snake {_snake_body: Vec::new(), _head: Coordinates{_x:0, _y:0},
-                _tail: Coordinates{_x:0, _y:0}, _direction: SnakeDirection::RIGHT,
-                _length: 0, _is_alive:true, _xy_limit: Coordinates { _x: 0, _y: 0 }}
+        Snake {_snake_body: Vec::new(), _head: Coordinates::new(0,0),
+                _tail: Coordinates::new(0,0), _direction: SnakeDirection::RIGHT,
+                _length: 0, _is_alive:true, _xy_limit: Coordinates::new(0,0)}
     }
 
     pub fn init_snake (&mut self, xy_limit: Coordinates) 
     {
-        self._snake_body.push(Coordinates{_x: 5,_y: 2});
-        self._snake_body.push(Coordinates{_x: 4,_y: 2});
-        self._snake_body.push(Coordinates{_x: 3,_y: 2});
-        self._snake_body.push(Coordinates{_x: 2,_y: 2});
-        self._snake_body.push(Coordinates{_x: 1,_y: 2});
+        self._snake_body.push(Coordinates::new(5,2));
+        self._snake_body.push(Coordinates::new(4,2));
+        self._snake_body.push(Coordinates::new(3,2));
+        self._snake_body.push(Coordinates::new(2,2));
+        self._snake_body.push(Coordinates::new(1,2));
         self._length = self._snake_body.len();
         self._xy_limit = xy_limit;
         self._head = self._snake_body[0];
@@ -57,7 +57,7 @@ impl Snake
         let mut i = 0;
         while i < self._snake_body.len()
         {
-            eprint!("{}", termion::cursor::Goto(self._snake_body[i]._x.try_into().unwrap(), self._snake_body[i]._y.try_into().unwrap()));
+            eprint!("{}", termion::cursor::Goto(self._snake_body[i].x.try_into().unwrap(), self._snake_body[i].y.try_into().unwrap()));
             eprint!("@");
             i +=1 ;
         }
@@ -79,7 +79,7 @@ impl Snake
 
     pub fn remove_trail(&mut self)
     {
-        eprint!("{} ", termion::cursor::Goto(self._tail._x.try_into().unwrap(), self._tail._y.try_into().unwrap()));
+        eprint!("{} ", termion::cursor::Goto(self._tail.x.try_into().unwrap(), self._tail.y.try_into().unwrap()));
     }
 
     pub fn set_direction(&mut self, dir: SnakeDirection) {
@@ -98,10 +98,10 @@ impl Snake
             self._snake_body[i] = self._snake_body[i - 1];
             i -= 1;
         }
-        self._snake_body[0]._x += 1;
-        if self._snake_body[0]._x >= self._xy_limit._x
+        self._snake_body[0].x += 1;
+        if self._snake_body[0].x >= self._xy_limit.x
         {
-            self._snake_body[0]._x = 2;
+            self._snake_body[0].x = 2;
         }
     }
 
@@ -111,10 +111,10 @@ impl Snake
             self._snake_body[i] = self._snake_body[i - 1];
             i -= 1;
         }
-        self._snake_body[0]._x -= 1;
-        if self._snake_body[0]._x < 2
+        self._snake_body[0].x -= 1;
+        if self._snake_body[0].x < 2
         {
-            self._snake_body[0]._x =  self._xy_limit._x - 1;
+            self._snake_body[0].x =  self._xy_limit.x - 1;
         }
     }
 
@@ -124,10 +124,10 @@ impl Snake
             self._snake_body[i] = self._snake_body[i - 1];
              i -= 1;
         }
-        self._snake_body[0]._y -= 1;
-        if self._snake_body[0]._y < 2
+        self._snake_body[0].y -= 1;
+        if self._snake_body[0].y < 2
         {
-            self._snake_body[0]._y =  self._xy_limit._y - 1;
+            self._snake_body[0].y =  self._xy_limit.y - 1;
         }
     }
 
@@ -137,10 +137,10 @@ impl Snake
             self._snake_body[i] = self._snake_body[i - 1];
             i -= 1;
         }
-        self._snake_body[0]._y += 1;
-        if self._snake_body[0]._y >= self._xy_limit._y
+        self._snake_body[0].y += 1;
+        if self._snake_body[0].y >= self._xy_limit.y
         {
-            self._snake_body[0]._y = 2;
+            self._snake_body[0].y = 2;
         }
     }
 
