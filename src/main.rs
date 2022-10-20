@@ -21,8 +21,8 @@ struct SnakeGame {
 }
 
 impl SnakeGame {
-    pub fn new(board_size: Coordinates, dir: SnakeDirection) -> SnakeGame {
-        SnakeGame {
+    pub fn new(board_size: Coordinates, dir: SnakeDirection) -> Self {
+        Self {
             screen_size: board_size,
             dir: dir,
         }

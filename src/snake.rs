@@ -4,20 +4,15 @@
  */
 use crate::position::Coordinates;
 
-#[derive(PartialEq)]
+#[derive(PartialEq, Copy, Clone)]
 pub enum SnakeDirection {
     UP,
     DOWN,
     RIGHT,
     LEFT,
 }
-impl Copy for SnakeDirection {}
-impl Clone for SnakeDirection {
-    fn clone(&self) -> Self {
-        *self
-    }
-}
 
+#[derive(Clone)]
 pub struct Snake {
     pub snake_body: Vec<Coordinates>,
     pub head: Coordinates,
