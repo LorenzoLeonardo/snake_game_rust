@@ -10,8 +10,8 @@ use std::io::stdout;
 use std::io::Stdout;
 use std::time;
 
+use crossterm::cursor;
 use crossterm::cursor::Hide;
-use crossterm::cursor::Show;
 use crossterm::event::{read, Event, KeyCode};
 use crossterm::terminal;
 use crossterm::ExecutableCommand;
@@ -41,37 +41,41 @@ impl SnakeGame {
             rx,
         }
     }
-
+    fn listen_for_key_press(&mut self) -> SnakeDirection {
+        match self.rx.try_recv() {
+            Ok(key) => {
+                if key == KeyCode::Up && self.dir != SnakeDirection::Down {
+                    SnakeDirection::Up
+                } else if key == KeyCode::Down && self.dir != SnakeDirection::Up {
+                    SnakeDirection::Down
+                } else if key == KeyCode::Left && self.dir != SnakeDirection::Right {
+                    SnakeDirection::Left
+                } else if key == KeyCode::Right && self.dir != SnakeDirection::Left {
+                    SnakeDirection::Right
+                } else if key == KeyCode::Esc {
+                    SnakeDirection::Esc
+                } else {
+                    self.dir
+                }
+            }
+            Err(_e) => self.dir,
+        }
+    }
     pub fn run(&mut self, stdout: &mut Stdout) -> Result<(), Box<dyn std::error::Error>> {
         let mut snake = Snake::new();
         let mut food = Food::new();
         let ref_snake = &mut snake;
         let ref_food = &mut food;
-        let delay = time::Duration::from_millis(50);
+        let delay = time::Duration::from_millis(30);
 
         ref_food.init_food(self.screen_size);
         ref_food.create_food();
         ref_snake.init_snake(self.screen_size);
         while ref_snake.is_alive {
-            self.dir = match self.rx.try_recv() {
-                Ok(key) => {
-                    if key == KeyCode::Up && self.dir != SnakeDirection::Down {
-                        SnakeDirection::Up
-                    } else if key == KeyCode::Down && self.dir != SnakeDirection::Up {
-                        SnakeDirection::Down
-                    } else if key == KeyCode::Left && self.dir != SnakeDirection::Right {
-                        SnakeDirection::Left
-                    } else if key == KeyCode::Right && self.dir != SnakeDirection::Left {
-                        SnakeDirection::Right
-                    } else if key == KeyCode::Esc {
-                        break;
-                    } else {
-                        self.dir
-                    }
-                }
-                Err(_e) => self.dir,
-            };
-
+            self.dir = self.listen_for_key_press();
+            if self.dir == SnakeDirection::Esc {
+                break;
+            }
             self.clear(stdout)?;
             self.draw_snake(ref_snake, self.dir, stdout)?;
             self.draw_food(ref_food, stdout)?;
@@ -116,11 +120,11 @@ impl SnakeGame {
 
 pub fn main() -> Result<(), Box<dyn std::error::Error>> {
     let (tx, rx) = unbounded_channel();
-
     let mut stdout = stdout();
     stdout
         .execute(terminal::Clear(terminal::ClearType::All))?
-        .execute(Hide)?;
+        .execute(cursor::Hide)?
+        .execute(cursor::EnableBlinking)?;
 
     std::thread::spawn(move || loop {
         if let Event::Key(key_event) = read().unwrap() {
@@ -152,7 +156,6 @@ pub fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     stdout
         .execute(terminal::Clear(terminal::ClearType::All))?
-        .execute(Show)?;
-
+        .execute(cursor::Show)?;
     Ok(())
 }

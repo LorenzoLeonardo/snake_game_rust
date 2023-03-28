@@ -14,6 +14,7 @@ pub enum SnakeDirection {
     Down,
     Right,
     Left,
+    Esc,
 }
 
 #[derive(Clone)]
@@ -61,7 +62,8 @@ impl Snake {
                     self.snake_body[i].x,
                     self.snake_body[i].y,
                 ))?
-                .execute(Print("@"))?;
+                .execute(Print("@"))?
+                .execute(Hide)?;
 
             i += 1;
         }
@@ -74,6 +76,7 @@ impl Snake {
             SnakeDirection::Left => self.crawl_left(),
             SnakeDirection::Up => self.crawl_up(),
             SnakeDirection::Down => self.crawl_down(),
+            SnakeDirection::Esc => {}
         }
         self.head = self.snake_body[0];
         self.tail = self.snake_body[self.length - 1];
@@ -85,7 +88,8 @@ impl Snake {
         stdout
             .execute(Hide)?
             .execute(crossterm::cursor::MoveTo(self.tail.x, self.tail.y))?
-            .execute(Print(" "))?;
+            .execute(Print(" "))?
+            .execute(Hide)?;
         Ok(())
     }
 
