@@ -15,6 +15,8 @@ use crossterm::cursor::Hide;
 use crossterm::event::{read, Event, KeyCode};
 use crossterm::terminal;
 use crossterm::ExecutableCommand;
+use crossterm::terminal::disable_raw_mode;
+use crossterm::terminal::enable_raw_mode;
 use tokio::sync::mpsc::unbounded_channel;
 use tokio::sync::mpsc::UnboundedReceiver;
 
@@ -119,6 +121,7 @@ impl SnakeGame {
 }
 
 pub fn main() -> Result<(), Box<dyn std::error::Error>> {
+    enable_raw_mode()?;
     let (tx, rx) = unbounded_channel();
     let mut stdout = stdout();
     stdout
@@ -157,5 +160,7 @@ pub fn main() -> Result<(), Box<dyn std::error::Error>> {
     stdout
         .execute(terminal::Clear(terminal::ClearType::All))?
         .execute(cursor::Show)?;
+
+    disable_raw_mode()?;
     Ok(())
 }
