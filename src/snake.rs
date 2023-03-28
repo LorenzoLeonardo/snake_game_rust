@@ -52,22 +52,20 @@ impl Snake {
         self.tail = self.snake_body[self.length - 1];
     }
 
-    pub fn display_snake(&mut self, stdout: &mut Stdout) {
+    pub fn display_snake(&mut self, stdout: &mut Stdout) -> Result<(), Box<dyn std::error::Error>> {
         let mut i = 0;
         while i < self.snake_body.len() {
             stdout
-                .execute(Hide)
-                .unwrap()
+                .execute(Hide)?
                 .execute(crossterm::cursor::MoveTo(
                     self.snake_body[i].x,
                     self.snake_body[i].y,
-                ))
-                .unwrap()
-                .execute(Print("@"))
-                .unwrap();
+                ))?
+                .execute(Print("@"))?;
 
             i += 1;
         }
+        Ok(())
     }
 
     pub fn crawl_snake(&mut self) {
@@ -83,14 +81,12 @@ impl Snake {
         self.check_body_collision();
     }
 
-    pub fn remove_trail(&mut self, stdout: &mut Stdout) {
+    pub fn remove_trail(&mut self, stdout: &mut Stdout) -> Result<(), Box<dyn std::error::Error>> {
         stdout
-            .execute(Hide)
-            .unwrap()
-            .execute(crossterm::cursor::MoveTo(self.tail.x, self.tail.y))
-            .unwrap()
-            .execute(Print(" "))
-            .unwrap();
+            .execute(Hide)?
+            .execute(crossterm::cursor::MoveTo(self.tail.x, self.tail.y))?
+            .execute(Print(" "))?;
+        Ok(())
     }
 
     pub fn set_direction(&mut self, dir: SnakeDirection) {

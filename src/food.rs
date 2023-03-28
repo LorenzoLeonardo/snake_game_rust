@@ -31,18 +31,16 @@ impl Food {
         self.food_position.y = rand::thread_rng().gen_range(2..self.xy_limit.y - 2);
     }
 
-    pub fn display_food(&mut self, mut stdout: &Stdout) {
+    pub fn display_food(&mut self, mut stdout: &Stdout) -> Result<(), Box<dyn std::error::Error>> {
         stdout
-            .execute(Hide)
-            .unwrap()
+            .execute(Hide)?
             .execute(crossterm::cursor::MoveTo(
                 self.food_position.x,
                 self.food_position.y,
-            ))
-            .unwrap()
-            .execute(Print("O"))
-            .unwrap()
-            .execute(Hide)
-            .unwrap();
+            ))?
+            .execute(Print("O"))?
+            .execute(Hide)?;
+
+        Ok(())
     }
 }

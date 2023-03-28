@@ -42,7 +42,7 @@ impl SnakeGame {
         }
     }
 
-    pub fn run(&mut self, stdout: &mut Stdout) {
+    pub fn run(&mut self, stdout: &mut Stdout) -> Result<(), Box<dyn std::error::Error>> {
         let mut snake = Snake::new();
         let mut food = Food::new();
         let ref_snake = &mut snake;
@@ -72,9 +72,9 @@ impl SnakeGame {
                 Err(_e) => self.dir,
             };
 
-            self.clear();
-            self.draw_snake(ref_snake, self.dir, stdout);
-            self.draw_food(ref_food, stdout);
+            self.clear(stdout)?;
+            self.draw_snake(ref_snake, self.dir, stdout)?;
+            self.draw_food(ref_food, stdout)?;
 
             if ref_snake.head == ref_food.food_position {
                 ref_snake.grow_snake(ref_food.food_position);
@@ -83,19 +83,34 @@ impl SnakeGame {
 
             std::thread::sleep(delay);
         }
+        Ok(())
     }
 
-    fn clear(&mut self) {}
+    fn clear(&mut self, stdout: &mut Stdout) -> Result<(), Box<dyn std::error::Error>> {
+        stdout.execute(Hide)?;
+        Ok(())
+    }
 
-    fn draw_snake(&mut self, snake: &mut Snake, dir: SnakeDirection, stdout: &mut Stdout) {
-        snake.remove_trail(stdout);
+    fn draw_snake(
+        &mut self,
+        snake: &mut Snake,
+        dir: SnakeDirection,
+        stdout: &mut Stdout,
+    ) -> Result<(), Box<dyn std::error::Error>> {
+        snake.remove_trail(stdout)?;
         snake.set_direction(dir);
         snake.crawl_snake();
-        snake.display_snake(stdout);
+        snake.display_snake(stdout)?;
+        Ok(())
     }
 
-    fn draw_food(&mut self, food: &mut Food, stdout: &Stdout) {
-        food.display_food(stdout);
+    fn draw_food(
+        &mut self,
+        food: &mut Food,
+        stdout: &Stdout,
+    ) -> Result<(), Box<dyn std::error::Error>> {
+        food.display_food(stdout)?;
+        Ok(())
     }
 }
 
@@ -133,7 +148,7 @@ pub fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let mut main_game = SnakeGame::new(Coordinates::new(80, 25), SnakeDirection::Right, rx);
 
-    main_game.run(&mut stdout);
+    main_game.run(&mut stdout)?;
 
     stdout
         .execute(terminal::Clear(terminal::ClearType::All))?
