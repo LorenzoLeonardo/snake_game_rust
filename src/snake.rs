@@ -1,6 +1,6 @@
 use std::io::Stdout;
 
-use crossterm::{cursor::Hide, style::Print, ExecutableCommand};
+use crossterm::{style::Print, ExecutableCommand};
 
 /* Created by: Lorenzo Leonardo
  * Email: enzotechcomputersolutions@gmail.com
@@ -57,13 +57,11 @@ impl Snake {
         let mut i = 0;
         while i < self.snake_body.len() {
             stdout
-                .execute(Hide)?
                 .execute(crossterm::cursor::MoveTo(
                     self.snake_body[i].x,
                     self.snake_body[i].y,
                 ))?
-                .execute(Print("@"))?
-                .execute(Hide)?;
+                .execute(Print("@"))?;
 
             i += 1;
         }
@@ -86,10 +84,8 @@ impl Snake {
 
     pub fn remove_trail(&mut self, stdout: &mut Stdout) -> Result<(), Box<dyn std::error::Error>> {
         stdout
-            .execute(Hide)?
             .execute(crossterm::cursor::MoveTo(self.tail.x, self.tail.y))?
-            .execute(Print(" "))?
-            .execute(Hide)?;
+            .execute(Print(" "))?;
         Ok(())
     }
 

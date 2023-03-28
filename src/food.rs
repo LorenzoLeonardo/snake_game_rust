@@ -5,7 +5,7 @@ use std::io::Stdout;
  * Date : September 15, 2022
  */
 use crate::position::Coordinates;
-use crossterm::{cursor::Hide, style::Print, ExecutableCommand};
+use crossterm::{style::Print, ExecutableCommand};
 use rand::Rng;
 
 pub struct Food {
@@ -33,13 +33,11 @@ impl Food {
 
     pub fn display_food(&mut self, mut stdout: &Stdout) -> Result<(), Box<dyn std::error::Error>> {
         stdout
-            .execute(Hide)?
             .execute(crossterm::cursor::MoveTo(
                 self.food_position.x,
                 self.food_position.y,
             ))?
-            .execute(Print("O"))?
-            .execute(Hide)?;
+            .execute(Print("O"))?;
 
         Ok(())
     }
