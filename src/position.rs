@@ -4,12 +4,12 @@
  */
 #[derive(PartialEq, Clone, Copy)]
 pub struct Coordinates {
-    pub x: u32,
-    pub y: u32,
+    pub x: u16,
+    pub y: u16,
 }
 
 impl Coordinates {
-    pub fn new(x: u32, y: u32) -> Self {
-        Self { x: x, y: y }
+    pub fn new(x: u16, y: u16) -> Self {
+        Self { x, y }
     }
 }

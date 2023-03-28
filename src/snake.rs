@@ -1,3 +1,7 @@
+use std::io::Stdout;
+
+use crossterm::{cursor::Hide, style::Print, ExecutableCommand};
+
 /* Created by: Lorenzo Leonardo
  * Email: enzotechcomputersolutions@gmail.com
  * Date : September 15, 2022
@@ -6,10 +10,10 @@ use crate::position::Coordinates;
 
 #[derive(PartialEq, Copy, Clone)]
 pub enum SnakeDirection {
-    UP,
-    DOWN,
-    RIGHT,
-    LEFT,
+    Up,
+    Down,
+    Right,
+    Left,
 }
 
 #[derive(Clone)]
@@ -29,7 +33,7 @@ impl Snake {
             snake_body: Vec::new(),
             head: Coordinates::new(0, 0),
             tail: Coordinates::new(0, 0),
-            direction: SnakeDirection::RIGHT,
+            direction: SnakeDirection::Right,
             length: 0,
             is_alive: true,
             xy_limit: Coordinates::new(0, 0),
@@ -48,27 +52,30 @@ impl Snake {
         self.tail = self.snake_body[self.length - 1];
     }
 
-    pub fn display_snake(&mut self) {
+    pub fn display_snake(&mut self, stdout: &mut Stdout) {
         let mut i = 0;
         while i < self.snake_body.len() {
-            eprint!(
-                "{}",
-                termion::cursor::Goto(
-                    self.snake_body[i].x.try_into().unwrap(),
-                    self.snake_body[i].y.try_into().unwrap()
-                )
-            );
-            eprint!("@");
+            stdout
+                .execute(Hide)
+                .unwrap()
+                .execute(crossterm::cursor::MoveTo(
+                    self.snake_body[i].x,
+                    self.snake_body[i].y,
+                ))
+                .unwrap()
+                .execute(Print("@"))
+                .unwrap();
+
             i += 1;
         }
     }
 
     pub fn crawl_snake(&mut self) {
         match self.direction {
-            SnakeDirection::RIGHT => self.crawl_right(),
-            SnakeDirection::LEFT => self.crawl_left(),
-            SnakeDirection::UP => self.crawl_up(),
-            SnakeDirection::DOWN => self.crawl_down(),
+            SnakeDirection::Right => self.crawl_right(),
+            SnakeDirection::Left => self.crawl_left(),
+            SnakeDirection::Up => self.crawl_up(),
+            SnakeDirection::Down => self.crawl_down(),
         }
         self.head = self.snake_body[0];
         self.tail = self.snake_body[self.length - 1];
@@ -76,14 +83,14 @@ impl Snake {
         self.check_body_collision();
     }
 
-    pub fn remove_trail(&mut self) {
-        eprint!(
-            "{} ",
-            termion::cursor::Goto(
-                self.tail.x.try_into().unwrap(),
-                self.tail.y.try_into().unwrap()
-            )
-        );
+    pub fn remove_trail(&mut self, stdout: &mut Stdout) {
+        stdout
+            .execute(Hide)
+            .unwrap()
+            .execute(crossterm::cursor::MoveTo(self.tail.x, self.tail.y))
+            .unwrap()
+            .execute(Print(" "))
+            .unwrap();
     }
 
     pub fn set_direction(&mut self, dir: SnakeDirection) {

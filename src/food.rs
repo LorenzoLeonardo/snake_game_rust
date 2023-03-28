@@ -1,8 +1,11 @@
+use std::io::Stdout;
+
 /* Created by: Lorenzo Leonardo
  * Email: enzotechcomputersolutions@gmail.com
  * Date : September 15, 2022
  */
 use crate::position::Coordinates;
+use crossterm::{cursor::Hide, style::Print, ExecutableCommand};
 use rand::Rng;
 
 pub struct Food {
@@ -28,14 +31,18 @@ impl Food {
         self.food_position.y = rand::thread_rng().gen_range(2..self.xy_limit.y - 2);
     }
 
-    pub fn display_food(&mut self) {
-        eprint!(
-            "{}",
-            termion::cursor::Goto(
-                self.food_position.x.try_into().unwrap(),
-                self.food_position.y.try_into().unwrap()
-            )
-        );
-        eprint!("O");
+    pub fn display_food(&mut self, mut stdout: &Stdout) {
+        stdout
+            .execute(Hide)
+            .unwrap()
+            .execute(crossterm::cursor::MoveTo(
+                self.food_position.x,
+                self.food_position.y,
+            ))
+            .unwrap()
+            .execute(Print("O"))
+            .unwrap()
+            .execute(Hide)
+            .unwrap();
     }
 }

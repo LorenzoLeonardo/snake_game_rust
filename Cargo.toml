@@ -2,10 +2,9 @@
 name = "snake_game_rust"
 version = "0.1.0"
 edition = "2021"
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+authors = ["Lorenzo Leonardo <enzotechcomputersolutions@gmail.com>"]
 
 [dependencies]
 rand = "0.8"
-termion = "*"
-device_query = "1.1.1"
+crossterm = "0.26.1"
+tokio = { version = "1.20", features = ["rt", "test-util", "macros", "time"] }
