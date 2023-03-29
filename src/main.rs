@@ -10,6 +10,7 @@ mod snake;
 use std::io::stdout;
 use std::io::Stdout;
 use std::time;
+use std::time::Duration;
 
 use board::draw_board;
 use crossterm::cursor;
@@ -131,7 +132,7 @@ pub fn main() -> Result<(), Box<dyn std::error::Error>> {
         .execute(cursor::Hide)?
         .execute(cursor::EnableBlinking)?;
 
-    std::thread::spawn(move || loop {
+    let handle = std::thread::spawn(move || loop {
         if let Event::Key(key_event) = read().unwrap() {
             match key_event.code {
                 KeyCode::Down => {
@@ -150,7 +151,9 @@ pub fn main() -> Result<(), Box<dyn std::error::Error>> {
                     tx.send(KeyCode::Esc).unwrap();
                     break;
                 }
-                _ => {}
+                _ => {
+                    std::thread::sleep(Duration::from_millis(1));
+                }
             }
         }
     });
@@ -165,5 +168,7 @@ pub fn main() -> Result<(), Box<dyn std::error::Error>> {
         .execute(cursor::Show)?;
 
     disable_raw_mode()?;
+
+    handle.join().unwrap();
     Ok(())
 }
