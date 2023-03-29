@@ -148,14 +148,7 @@ impl Snake {
     }
 
     fn check_body_collision(&mut self) {
-        let mut i = 1;
-        while i < self.length {
-            if self.snake_body[i] == self.head {
-                self.is_alive = false;
-                break;
-            }
-            i += 1;
-        }
+        self.is_alive = !self.snake_body[1..].contains(&self.head);
     }
 }
 
