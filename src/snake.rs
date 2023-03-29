@@ -42,11 +42,11 @@ impl Snake {
     }
 
     pub fn init_snake(&mut self, xy_limit: Coordinates) {
+        self.snake_body.push(Coordinates::new(6, 2));
         self.snake_body.push(Coordinates::new(5, 2));
         self.snake_body.push(Coordinates::new(4, 2));
         self.snake_body.push(Coordinates::new(3, 2));
         self.snake_body.push(Coordinates::new(2, 2));
-        self.snake_body.push(Coordinates::new(1, 2));
         self.length = self.snake_body.len();
         self.xy_limit = xy_limit;
         self.head = self.snake_body[0];
