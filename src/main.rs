@@ -2,6 +2,7 @@
  * Email: enzotechcomputersolutions@gmail.com
  * Date : September 15, 2022
  */
+mod board;
 mod food;
 mod position;
 mod snake;
@@ -10,6 +11,7 @@ use std::io::stdout;
 use std::io::Stdout;
 use std::time;
 
+use board::draw_board;
 use crossterm::cursor;
 use crossterm::cursor::Hide;
 use crossterm::event::{read, Event, KeyCode};
@@ -152,8 +154,9 @@ pub fn main() -> Result<(), Box<dyn std::error::Error>> {
             }
         }
     });
-
-    let mut main_game = SnakeGame::new(Coordinates::new(80, 25), SnakeDirection::Right, rx);
+    let coord = Coordinates::new(80, 25);
+    let mut main_game = SnakeGame::new(coord.to_owned(), SnakeDirection::Right, rx);
+    draw_board(&mut stdout, coord)?;
 
     main_game.run(&mut stdout)?;
 
