@@ -14,9 +14,9 @@ use crossterm::cursor;
 use crossterm::cursor::Hide;
 use crossterm::event::{read, Event, KeyCode};
 use crossterm::terminal;
-use crossterm::ExecutableCommand;
 use crossterm::terminal::disable_raw_mode;
 use crossterm::terminal::enable_raw_mode;
+use crossterm::ExecutableCommand;
 use tokio::sync::mpsc::unbounded_channel;
 use tokio::sync::mpsc::UnboundedReceiver;
 

@@ -2,7 +2,7 @@
  * Email: enzotechcomputersolutions@gmail.com
  * Date : September 15, 2022
  */
-#[derive(PartialEq, Clone, Copy)]
+#[derive(PartialEq, Clone, Copy, Default)]
 pub struct Coordinates {
     pub x: u16,
     pub y: u16,

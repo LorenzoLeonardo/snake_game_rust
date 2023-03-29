@@ -158,3 +158,69 @@ impl Snake {
         }
     }
 }
+
+#[cfg(test)]
+mod test {
+    use super::Snake;
+    use crate::position::Coordinates;
+
+    #[test]
+    fn test_crawl_right() {
+        let mut snake = Snake::new();
+        let xy_limit = Coordinates::new(80, 25);
+
+        snake.init_snake(xy_limit.to_owned());
+        snake.set_direction(super::SnakeDirection::Right);
+        for _n in 0..100 {
+            snake.crawl_snake();
+            if snake.head.x >= xy_limit.x {
+                panic!("Shouldn't be greater than the X Limit.");
+            }
+        }
+    }
+
+    #[test]
+    fn test_crawl_left() {
+        let mut snake = Snake::new();
+        let xy_limit = Coordinates::new(80, 25);
+
+        snake.init_snake(xy_limit.to_owned());
+        snake.set_direction(super::SnakeDirection::Left);
+        for _n in 0..100 {
+            snake.crawl_snake();
+            if snake.head.x < 2 {
+                panic!("Shouldn't be lesser than 2.");
+            }
+        }
+    }
+
+    #[test]
+    fn test_crawl_up() {
+        let mut snake = Snake::new();
+        let xy_limit = Coordinates::new(80, 25);
+
+        snake.init_snake(xy_limit.to_owned());
+        snake.set_direction(super::SnakeDirection::Up);
+        for _n in 0..100 {
+            snake.crawl_snake();
+            if snake.head.y < 2 {
+                panic!("Shouldn't be lesser than 2.");
+            }
+        }
+    }
+
+    #[test]
+    fn test_crawl_down() {
+        let mut snake = Snake::new();
+        let xy_limit = Coordinates::new(80, 25);
+
+        snake.init_snake(xy_limit.to_owned());
+        snake.set_direction(super::SnakeDirection::Up);
+        for _n in 0..100 {
+            snake.crawl_snake();
+            if snake.head.y >= xy_limit.y {
+                panic!("Shouldn't be greater than the Y Limit.");
+            }
+        }
+    }
+}
