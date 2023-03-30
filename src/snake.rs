@@ -25,32 +25,34 @@ pub struct Snake {
     pub direction: SnakeDirection,
     pub length: usize,
     pub is_alive: bool,
-    pub xy_limit: Coordinates,
+    pub upper_left: Coordinates,
+    pub bottom_right: Coordinates,
 }
 
 impl Snake {
-    pub fn new() -> Self {
-        Self {
-            snake_body: Vec::new(),
-            head: Coordinates::new(0, 0),
-            tail: Coordinates::new(0, 0),
-            direction: SnakeDirection::Right,
-            length: 0,
-            is_alive: true,
-            xy_limit: Coordinates::new(0, 0),
-        }
-    }
+    pub fn new(upper_left: Coordinates, bottom_right: Coordinates) -> Self {
+        // Starting positon of the snake must be at the top most part of the board going right
+        let snake_body = vec![
+            Coordinates::new(upper_left.x + 5, upper_left.y + 1),
+            Coordinates::new(upper_left.x + 4, upper_left.y + 1),
+            Coordinates::new(upper_left.x + 3, upper_left.y + 1),
+            Coordinates::new(upper_left.x + 2, upper_left.y + 1),
+            Coordinates::new(upper_left.x + 1, upper_left.y + 1),
+        ];
+        let length = snake_body.len();
+        let head = snake_body[0];
+        let tail = snake_body[length - 1];
 
-    pub fn init_snake(&mut self, xy_limit: Coordinates) {
-        self.snake_body.push(Coordinates::new(6, 2));
-        self.snake_body.push(Coordinates::new(5, 2));
-        self.snake_body.push(Coordinates::new(4, 2));
-        self.snake_body.push(Coordinates::new(3, 2));
-        self.snake_body.push(Coordinates::new(2, 2));
-        self.length = self.snake_body.len();
-        self.xy_limit = xy_limit;
-        self.head = self.snake_body[0];
-        self.tail = self.snake_body[self.length - 1];
+        Self {
+            snake_body,
+            head,
+            tail,
+            direction: SnakeDirection::Right,
+            length,
+            is_alive: true,
+            upper_left,
+            bottom_right,
+        }
     }
 
     pub fn display_snake(&mut self, stdout: &mut Stdout) -> Result<(), Box<dyn std::error::Error>> {
@@ -106,8 +108,8 @@ impl Snake {
             i -= 1;
         }
         self.snake_body[0].x += 1;
-        if self.snake_body[0].x >= self.xy_limit.x {
-            self.snake_body[0].x = 2;
+        if self.snake_body[0].x >= self.bottom_right.x {
+            self.snake_body[0].x = self.upper_left.x + 1;
         }
     }
 
@@ -118,8 +120,8 @@ impl Snake {
             i -= 1;
         }
         self.snake_body[0].x -= 1;
-        if self.snake_body[0].x < 2 {
-            self.snake_body[0].x = self.xy_limit.x - 1;
+        if self.snake_body[0].x <= self.upper_left.x {
+            self.snake_body[0].x = self.bottom_right.x - 1;
         }
     }
 
@@ -130,8 +132,8 @@ impl Snake {
             i -= 1;
         }
         self.snake_body[0].y -= 1;
-        if self.snake_body[0].y < 2 {
-            self.snake_body[0].y = self.xy_limit.y - 1;
+        if self.snake_body[0].y <= self.upper_left.y {
+            self.snake_body[0].y = self.bottom_right.y - 1;
         }
     }
 
@@ -142,8 +144,8 @@ impl Snake {
             i -= 1;
         }
         self.snake_body[0].y += 1;
-        if self.snake_body[0].y >= self.xy_limit.y {
-            self.snake_body[0].y = 2;
+        if self.snake_body[0].y >= self.bottom_right.y {
+            self.snake_body[0].y = self.upper_left.y + 1;
         }
     }
 
@@ -159,60 +161,60 @@ mod test {
 
     #[test]
     fn test_crawl_right() {
-        let mut snake = Snake::new();
-        let xy_limit = Coordinates::new(80, 25);
+        let upper_left = Coordinates::new(1, 1);
+        let bottom_right = Coordinates::new(80, 25);
+        let mut snake = Snake::new(upper_left, bottom_right);
 
-        snake.init_snake(xy_limit.to_owned());
         snake.set_direction(super::SnakeDirection::Right);
         for _n in 0..100 {
             snake.crawl_snake();
-            if snake.head.x >= xy_limit.x {
-                panic!("Shouldn't be greater than the X Limit.");
+            if snake.head.x >= bottom_right.x {
+                panic!("Snake head should not collide at the right side of the board.");
             }
         }
     }
 
     #[test]
     fn test_crawl_left() {
-        let mut snake = Snake::new();
-        let xy_limit = Coordinates::new(80, 25);
+        let upper_left = Coordinates::new(1, 1);
+        let bottom_right = Coordinates::new(80, 25);
+        let mut snake = Snake::new(upper_left, bottom_right);
 
-        snake.init_snake(xy_limit.to_owned());
         snake.set_direction(super::SnakeDirection::Left);
         for _n in 0..100 {
             snake.crawl_snake();
-            if snake.head.x < 2 {
-                panic!("Shouldn't be lesser than 2.");
+            if snake.head.x <= upper_left.x {
+                panic!("Snake head should not collide at the left side of the board.");
             }
         }
     }
 
     #[test]
     fn test_crawl_up() {
-        let mut snake = Snake::new();
-        let xy_limit = Coordinates::new(80, 25);
+        let upper_left = Coordinates::new(1, 1);
+        let bottom_right = Coordinates::new(80, 25);
+        let mut snake = Snake::new(upper_left, bottom_right);
 
-        snake.init_snake(xy_limit.to_owned());
         snake.set_direction(super::SnakeDirection::Up);
         for _n in 0..100 {
             snake.crawl_snake();
-            if snake.head.y < 2 {
-                panic!("Shouldn't be lesser than 2.");
+            if snake.head.y <= upper_left.y {
+                panic!("Snake head should not collide at the upper side of the board.");
             }
         }
     }
 
     #[test]
     fn test_crawl_down() {
-        let mut snake = Snake::new();
-        let xy_limit = Coordinates::new(80, 25);
+        let upper_left = Coordinates::new(1, 1);
+        let bottom_right = Coordinates::new(80, 25);
+        let mut snake = Snake::new(upper_left, bottom_right);
 
-        snake.init_snake(xy_limit.to_owned());
         snake.set_direction(super::SnakeDirection::Up);
         for _n in 0..100 {
             snake.crawl_snake();
-            if snake.head.y >= xy_limit.y {
-                panic!("Shouldn't be greater than the Y Limit.");
+            if snake.head.y >= bottom_right.y {
+                panic!("Snake head should not collide at the lower side of the board.");
             }
         }
     }

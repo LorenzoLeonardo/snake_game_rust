@@ -41,11 +41,12 @@ pub fn main() -> Result<(), Box<dyn std::error::Error>> {
     start_listening_keyboard_input(tx);
 
     // Initialize the board size
-    let coord = Coordinates::new(80, 25);
-    draw_board(&mut stdout, coord.to_owned())?;
+    let upper_left = Coordinates::new(1, 1);
+    let bottom_right = Coordinates::new(80, 25);
+    draw_board(&mut stdout, &upper_left, &bottom_right)?;
 
     // Initialize the snake game
-    let mut main_game = SnakeGame::new(coord, SnakeDirection::Right, rx);
+    let mut main_game = SnakeGame::new(upper_left, bottom_right, SnakeDirection::Right, rx);
 
     // Start running the game
     main_game.run(&mut stdout)?;

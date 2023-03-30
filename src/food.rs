@@ -10,30 +10,33 @@ use rand::Rng;
 
 pub struct Food {
     pub food_position: Coordinates,
-    xy_limit: Coordinates,
+    upper_left: Coordinates,
+    bottom_right: Coordinates,
 }
 
 impl Food {
     // Contruct Food
-    pub fn new() -> Self {
+    pub fn new(upper_left: Coordinates, bottom_right: Coordinates) -> Self {
         Self {
             food_position: Coordinates::new(0, 0),
-            xy_limit: Coordinates::new(0, 0),
+            upper_left,
+            bottom_right,
         }
     }
 
-    pub fn init_food(&mut self, limit: Coordinates) {
-        self.xy_limit = limit;
-    }
-
     pub fn create_food(&mut self, snake_body: &[Coordinates]) {
-        self.food_position.x = rand::thread_rng().gen_range(2..self.xy_limit.x - 2);
-        self.food_position.y = rand::thread_rng().gen_range(2..self.xy_limit.y - 2);
+        // Food must be inside the board
+        self.food_position.x =
+            rand::thread_rng().gen_range((self.upper_left.x + 1)..(self.bottom_right.x - 1));
+        self.food_position.y =
+            rand::thread_rng().gen_range((self.upper_left.y + 1)..(self.bottom_right.y - 1));
 
         // Create the food must not be at the location of the snake body
         while snake_body.contains(&self.food_position) {
-            self.food_position.x = rand::thread_rng().gen_range(2..self.xy_limit.x - 2);
-            self.food_position.y = rand::thread_rng().gen_range(2..self.xy_limit.y - 2);
+            self.food_position.x =
+                rand::thread_rng().gen_range((self.upper_left.x + 1)..(self.bottom_right.x - 1));
+            self.food_position.y =
+                rand::thread_rng().gen_range((self.upper_left.y + 1)..(self.bottom_right.y - 1));
         }
     }
 
