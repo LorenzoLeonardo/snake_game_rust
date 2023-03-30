@@ -6,41 +6,42 @@ use crate::position::Coordinates;
 
 pub fn draw_board(
     stdout: &mut Stdout,
-    screen_size: Coordinates,
+    upper_left: &Coordinates,
+    bottom_right: &Coordinates,
 ) -> Result<(), Box<dyn std::error::Error>> {
     stdout
-        .execute(crossterm::cursor::MoveTo(1, 1))?
+        .execute(crossterm::cursor::MoveTo(upper_left.x, upper_left.y))?
         .execute(Print("╔"))?;
 
     stdout
-        .execute(crossterm::cursor::MoveTo(screen_size.x, 1))?
+        .execute(crossterm::cursor::MoveTo(bottom_right.x, upper_left.y))?
         .execute(Print("╗"))?;
 
     stdout
-        .execute(crossterm::cursor::MoveTo(1, screen_size.y))?
+        .execute(crossterm::cursor::MoveTo(upper_left.x, bottom_right.y))?
         .execute(Print("╚"))?;
 
     stdout
-        .execute(crossterm::cursor::MoveTo(screen_size.x, screen_size.y))?
+        .execute(crossterm::cursor::MoveTo(bottom_right.x, bottom_right.y))?
         .execute(Print("╝"))?;
 
-    for y in 2..screen_size.y {
+    for y in (upper_left.y + 1)..bottom_right.y {
         stdout
-            .execute(crossterm::cursor::MoveTo(1, y))?
+            .execute(crossterm::cursor::MoveTo(upper_left.x, y))?
             .execute(Print("║"))?;
 
         stdout
-            .execute(crossterm::cursor::MoveTo(screen_size.x, y))?
+            .execute(crossterm::cursor::MoveTo(bottom_right.x, y))?
             .execute(Print("║"))?;
     }
 
-    for x in 2..screen_size.x {
+    for x in (upper_left.x + 1)..bottom_right.x {
         stdout
-            .execute(crossterm::cursor::MoveTo(x, 1))?
+            .execute(crossterm::cursor::MoveTo(x, upper_left.y))?
             .execute(Print("═"))?;
 
         stdout
-            .execute(crossterm::cursor::MoveTo(x, screen_size.y))?
+            .execute(crossterm::cursor::MoveTo(x, bottom_right.y))?
             .execute(Print("═"))?;
     }
 
@@ -49,8 +50,8 @@ pub fn draw_board(
 
     stdout
         .execute(crossterm::cursor::MoveTo(
-            (screen_size.x / 2) - (label.len() as u16 / 2),
-            screen_size.y + 1,
+            (bottom_right.x / 2) - (label.len() as u16 / 2),
+            bottom_right.y + 1,
         ))?
         .execute(Print(label))?;
     Ok(())

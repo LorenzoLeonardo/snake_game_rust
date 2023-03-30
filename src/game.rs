@@ -17,19 +17,22 @@ use crate::snake::Snake;
 use crate::snake::SnakeDirection;
 
 pub struct SnakeGame {
-    screen_size: Coordinates,
+    upper_left: Coordinates,
+    bottom_right: Coordinates,
     dir: SnakeDirection,
     rx: UnboundedReceiver<KeyCode>,
 }
 
 impl SnakeGame {
     pub fn new(
-        screen_size: Coordinates,
+        upper_left: Coordinates,
+        bottom_right: Coordinates,
         dir: SnakeDirection,
         rx: UnboundedReceiver<KeyCode>,
     ) -> Self {
         Self {
-            screen_size,
+            upper_left,
+            bottom_right,
             dir,
             rx,
         }
@@ -55,12 +58,10 @@ impl SnakeGame {
         }
     }
     pub fn run(&mut self, stdout: &mut Stdout) -> Result<(), Box<dyn std::error::Error>> {
-        let mut snake = Snake::new();
-        let mut food = Food::new();
+        let mut snake = Snake::new(self.upper_left, self.bottom_right);
+        let mut food = Food::new(self.upper_left, self.bottom_right);
         let delay = time::Duration::from_millis(30);
 
-        food.init_food(self.screen_size);
-        snake.init_snake(self.screen_size);
         food.create_food(&snake.snake_body);
         while snake.is_alive {
             self.dir = self.listen_for_key_press();
