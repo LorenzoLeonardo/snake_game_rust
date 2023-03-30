@@ -26,9 +26,15 @@ impl Food {
         self.xy_limit = limit;
     }
 
-    pub fn create_food(&mut self) {
+    pub fn create_food(&mut self, snake_body: &[Coordinates]) {
         self.food_position.x = rand::thread_rng().gen_range(2..self.xy_limit.x - 2);
         self.food_position.y = rand::thread_rng().gen_range(2..self.xy_limit.y - 2);
+
+        // Create the food must not be at the location of the snake body
+        while snake_body.contains(&self.food_position) {
+            self.food_position.x = rand::thread_rng().gen_range(2..self.xy_limit.x - 2);
+            self.food_position.y = rand::thread_rng().gen_range(2..self.xy_limit.y - 2);
+        }
     }
 
     pub fn display_food(&mut self, mut stdout: &Stdout) -> Result<(), Box<dyn std::error::Error>> {
