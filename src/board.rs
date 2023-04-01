@@ -10,12 +10,40 @@ pub fn draw_board(
     bottom_right: &Coordinates,
 ) -> Result<(), Box<dyn std::error::Error>> {
     stdout
-        .execute(crossterm::cursor::MoveTo(upper_left.x, upper_left.y))?
+        .execute(crossterm::cursor::MoveTo(upper_left.x, 1))?
         .execute(Print("╔"))?;
 
     stdout
-        .execute(crossterm::cursor::MoveTo(bottom_right.x, upper_left.y))?
+        .execute(crossterm::cursor::MoveTo(bottom_right.x, 1))?
         .execute(Print("╗"))?;
+
+    stdout
+        .execute(crossterm::cursor::MoveTo(upper_left.x, 2))?
+        .execute(Print("║"))?;
+
+    stdout
+        .execute(crossterm::cursor::MoveTo(bottom_right.x, 2))?
+        .execute(Print("║"))?;
+
+    for x in (upper_left.x + 1)..bottom_right.x {
+        stdout
+            .execute(crossterm::cursor::MoveTo(x, 1))?
+            .execute(Print("═"))?;
+    }
+
+    stdout
+        .execute(crossterm::cursor::MoveTo(2, 2))?
+        .execute(Print(
+            " Quit(Esc)     Up(↑)     Down(↓)     Left(←)     Right(→)",
+        ))?;
+
+    stdout
+        .execute(crossterm::cursor::MoveTo(upper_left.x, upper_left.y))?
+        .execute(Print("╠"))?;
+
+    stdout
+        .execute(crossterm::cursor::MoveTo(bottom_right.x, upper_left.y))?
+        .execute(Print("╣"))?;
 
     stdout
         .execute(crossterm::cursor::MoveTo(upper_left.x, bottom_right.y))?

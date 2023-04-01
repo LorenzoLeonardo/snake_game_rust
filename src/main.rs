@@ -23,7 +23,11 @@ use game::SnakeGame;
 use position::Coordinates;
 use snake::SnakeDirection;
 
-pub fn main() -> Result<(), Box<dyn std::error::Error>> {
+// We need 2 threads for this.
+// Crossterm read is blocking and the other thread
+// is for the main game loop to run
+#[tokio::main(worker_threads = 2)]
+pub async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Need to have this for this to work on Linux environment
     enable_raw_mode()?;
 
@@ -37,19 +41,17 @@ pub fn main() -> Result<(), Box<dyn std::error::Error>> {
         .execute(cursor::Hide)?
         .execute(cursor::EnableBlinking)?;
 
-    // Start keyboard listener
-    start_listening_keyboard_input(tx);
-
     // Initialize the board size
-    let upper_left = Coordinates::new(1, 1);
-    let bottom_right = Coordinates::new(80, 25);
+    let upper_left = Coordinates::new(1, 3);
+    let bottom_right = Coordinates::new(120, 37);
     draw_board(&mut stdout, &upper_left, &bottom_right)?;
 
     // Initialize the snake game
     let mut main_game = SnakeGame::new(upper_left, bottom_right, SnakeDirection::Right, rx);
-
+    // Start keyboard listener
+    start_listening_keyboard_input(tx);
     // Start running the game
-    main_game.run(&mut stdout)?;
+    main_game.run(&mut stdout).await?;
 
     // Clear the terminal and show the cursor back before exiting the game
     stdout

@@ -57,7 +57,7 @@ impl SnakeGame {
             Err(_e) => self.dir,
         }
     }
-    pub fn run(&mut self, stdout: &mut Stdout) -> Result<(), Box<dyn std::error::Error>> {
+    pub async fn run(&mut self, stdout: &mut Stdout) -> Result<(), Box<dyn std::error::Error>> {
         let mut snake = Snake::new(self.upper_left, self.bottom_right);
         let mut food = Food::new(self.upper_left, self.bottom_right);
         let delay = time::Duration::from_millis(30);
