@@ -1,4 +1,4 @@
-use std::io::Stdout;
+use std::{borrow::Cow, io::Stdout};
 
 use crossterm::{style::Print, ExecutableCommand};
 
@@ -18,7 +18,7 @@ pub enum SnakeDirection {
 }
 
 #[derive(Clone)]
-pub struct Snake {
+pub struct Snake<'a> {
     pub snake_body: Vec<Coordinates>,
     pub head: Coordinates,
     pub tail: Coordinates,
@@ -27,10 +27,15 @@ pub struct Snake {
     pub is_alive: bool,
     pub upper_left: Coordinates,
     pub bottom_right: Coordinates,
+    body_style: Cow<'a, &'a str>,
 }
 
-impl Snake {
-    pub fn new(upper_left: Coordinates, bottom_right: Coordinates) -> Self {
+impl<'a> Snake<'a> {
+    pub fn new(
+        upper_left: Coordinates,
+        bottom_right: Coordinates,
+        body_style: Cow<'a, &'a str>,
+    ) -> Self {
         // Starting positon of the snake must be at the top most part of the board going right
         let snake_body = vec![
             Coordinates::new(upper_left.x + 5, upper_left.y + 1),
@@ -52,6 +57,7 @@ impl Snake {
             is_alive: true,
             upper_left,
             bottom_right,
+            body_style,
         }
     }
 
@@ -63,7 +69,7 @@ impl Snake {
                     self.snake_body[i].x,
                     self.snake_body[i].y,
                 ))?
-                .execute(Print("@"))?;
+                .execute(Print(&self.body_style))?;
 
             i += 1;
         }
@@ -163,7 +169,7 @@ mod test {
     fn test_crawl_right() {
         let upper_left = Coordinates::new(1, 1);
         let bottom_right = Coordinates::new(80, 25);
-        let mut snake = Snake::new(upper_left, bottom_right);
+        let mut snake = Snake::new(upper_left, bottom_right, std::borrow::Cow::Owned("█"));
 
         snake.set_direction(super::SnakeDirection::Right);
         for _n in 0..100 {
@@ -178,7 +184,7 @@ mod test {
     fn test_crawl_left() {
         let upper_left = Coordinates::new(1, 1);
         let bottom_right = Coordinates::new(80, 25);
-        let mut snake = Snake::new(upper_left, bottom_right);
+        let mut snake = Snake::new(upper_left, bottom_right, std::borrow::Cow::Owned("█"));
 
         snake.set_direction(super::SnakeDirection::Left);
         for _n in 0..100 {
@@ -193,7 +199,7 @@ mod test {
     fn test_crawl_up() {
         let upper_left = Coordinates::new(1, 1);
         let bottom_right = Coordinates::new(80, 25);
-        let mut snake = Snake::new(upper_left, bottom_right);
+        let mut snake = Snake::new(upper_left, bottom_right, std::borrow::Cow::Owned("█"));
 
         snake.set_direction(super::SnakeDirection::Up);
         for _n in 0..100 {
@@ -208,7 +214,7 @@ mod test {
     fn test_crawl_down() {
         let upper_left = Coordinates::new(1, 1);
         let bottom_right = Coordinates::new(80, 25);
-        let mut snake = Snake::new(upper_left, bottom_right);
+        let mut snake = Snake::new(upper_left, bottom_right, std::borrow::Cow::Owned("█"));
 
         snake.set_direction(super::SnakeDirection::Up);
         for _n in 0..100 {

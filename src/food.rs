@@ -1,4 +1,4 @@
-use std::io::Stdout;
+use std::{borrow::Cow, io::Stdout};
 
 /* Created by: Lorenzo Leonardo
  * Email: enzotechcomputersolutions@gmail.com
@@ -8,19 +8,25 @@ use crate::position::Coordinates;
 use crossterm::{style::Print, ExecutableCommand};
 use rand::Rng;
 
-pub struct Food {
+pub struct Food<'a> {
     pub food_position: Coordinates,
     upper_left: Coordinates,
     bottom_right: Coordinates,
+    food_style: Cow<'a, &'a str>,
 }
 
-impl Food {
+impl<'a> Food<'a> {
     // Contruct Food
-    pub fn new(upper_left: Coordinates, bottom_right: Coordinates) -> Self {
+    pub fn new(
+        upper_left: Coordinates,
+        bottom_right: Coordinates,
+        food_style: Cow<'a, &'a str>,
+    ) -> Self {
         Self {
             food_position: Coordinates::new(0, 0),
             upper_left,
             bottom_right,
+            food_style,
         }
     }
 
@@ -46,7 +52,7 @@ impl Food {
                 self.food_position.x,
                 self.food_position.y,
             ))?
-            .execute(Print("O"))?;
+            .execute(Print(&self.food_style))?;
 
         Ok(())
     }
