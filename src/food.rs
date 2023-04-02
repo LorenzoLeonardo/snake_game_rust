@@ -2,33 +2,24 @@
  * Email: enzotechcomputersolutions@gmail.com
  * Date : September 15, 2022
  */
-// Standard libraries
-use std::{borrow::Cow, io::Stdout};
 // 3rd party crates
-use crossterm::{style::Print, ExecutableCommand};
 use rand::Rng;
 // My crates
 use crate::position::Coordinates;
 
-pub struct Food<'a> {
+pub struct Food {
     pub food_position: Coordinates,
     upper_left: Coordinates,
     bottom_right: Coordinates,
-    food_style: Cow<'a, &'a str>,
 }
 
-impl<'a> Food<'a> {
+impl Food {
     // Contruct Food
-    pub fn new(
-        upper_left: Coordinates,
-        bottom_right: Coordinates,
-        food_style: Cow<'a, &'a str>,
-    ) -> Self {
+    pub fn new(upper_left: Coordinates, bottom_right: Coordinates) -> Self {
         Self {
             food_position: Coordinates::new(0, 0),
             upper_left,
             bottom_right,
-            food_style,
         }
     }
 
@@ -48,14 +39,10 @@ impl<'a> Food<'a> {
         }
     }
 
-    pub fn display_food(&mut self, mut stdout: &Stdout) -> Result<(), Box<dyn std::error::Error>> {
-        stdout
-            .execute(crossterm::cursor::MoveTo(
-                self.food_position.x,
-                self.food_position.y,
-            ))?
-            .execute(Print(&self.food_style))?;
-
-        Ok(())
+    pub fn display_food<C>(&mut self, render_food: C)
+    where
+        C: FnOnce(&Coordinates),
+    {
+        render_food(&self.food_position);
     }
 }

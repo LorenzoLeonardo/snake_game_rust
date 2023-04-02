@@ -4,17 +4,17 @@
  */
 // Standard libraries
 use std::io::{stdout, Stdout};
-use std::time;
+use std::time::Duration;
 // 3rd party crates
 use crossterm::{cursor, event::KeyCode, terminal, ExecutableCommand};
 use tokio::sync::mpsc::{UnboundedReceiver, UnboundedSender};
 // My crates
-use crate::board::draw_board;
+use crate::draw::{draw_board, draw_food, draw_snake, remove_snake_trail};
 use crate::food::Food;
 use crate::position::Coordinates;
 use crate::snake::{Snake, SnakeDirection};
 
-pub struct SnakeGame {
+pub struct GameEngine {
     upper_left: Coordinates,
     bottom_right: Coordinates,
     dir: SnakeDirection,
@@ -22,7 +22,7 @@ pub struct SnakeGame {
     tx_snake_died: UnboundedSender<bool>,
 }
 
-impl SnakeGame {
+impl GameEngine {
     pub fn new(
         upper_left: Coordinates,
         bottom_right: Coordinates,
@@ -68,17 +68,9 @@ impl SnakeGame {
 
         draw_board(&mut stdout, &self.upper_left, &self.bottom_right)?;
 
-        let mut snake = Snake::new(
-            self.upper_left,
-            self.bottom_right,
-            std::borrow::Cow::Owned("█"),
-        );
-        let mut food = Food::new(
-            self.upper_left,
-            self.bottom_right,
-            std::borrow::Cow::Owned("█"),
-        );
-        let delay = time::Duration::from_millis(30);
+        let mut snake = Snake::new(self.upper_left, self.bottom_right);
+        let mut food = Food::new(self.upper_left, self.bottom_right);
+        let delay = Duration::from_millis(30);
 
         food.create_food(&snake.snake_body);
         while snake.is_alive {
@@ -86,8 +78,8 @@ impl SnakeGame {
             if self.dir == SnakeDirection::Esc {
                 break;
             }
-            self.draw_snake(&mut snake, self.dir, &mut stdout)?;
-            self.draw_food(&mut food, &stdout)?;
+            self.draw_snake(&mut snake, self.dir, &mut stdout);
+            self.draw_food(&mut food, &mut stdout);
 
             if snake.head == food.food_position {
                 snake.grow_snake(food.food_position);
@@ -105,25 +97,20 @@ impl SnakeGame {
         Ok(())
     }
 
-    fn draw_snake(
-        &mut self,
-        snake: &mut Snake,
-        dir: SnakeDirection,
-        stdout: &mut Stdout,
-    ) -> Result<(), Box<dyn std::error::Error>> {
-        snake.remove_trail(stdout)?;
+    fn draw_snake(&mut self, snake: &mut Snake, dir: SnakeDirection, stdout: &mut Stdout) {
+        snake.remove_trail(|body_trail| {
+            remove_snake_trail(stdout, body_trail);
+        });
         snake.set_direction(dir);
         snake.crawl_snake();
-        snake.display_snake(stdout)?;
-        Ok(())
+        snake.display_snake(|snake_body| {
+            draw_snake(stdout, snake_body, std::borrow::Cow::Owned("█"));
+        });
     }
 
-    fn draw_food(
-        &mut self,
-        food: &mut Food,
-        stdout: &Stdout,
-    ) -> Result<(), Box<dyn std::error::Error>> {
-        food.display_food(stdout)?;
-        Ok(())
+    fn draw_food(&mut self, food: &mut Food, stdout: &mut Stdout) {
+        food.display_food(|food_position| {
+            draw_food(stdout, food_position, std::borrow::Cow::Owned("@"));
+        });
     }
 }

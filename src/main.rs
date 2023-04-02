@@ -1,6 +1,6 @@
-mod board;
+mod draw;
+mod engine;
 mod food;
-mod game;
 mod keyboard;
 mod position;
 mod snake;
@@ -10,7 +10,7 @@ use crossterm::terminal::{disable_raw_mode, enable_raw_mode};
 use keyboard::KeyboardListener;
 use tokio::sync::mpsc::unbounded_channel;
 // My crates
-use game::SnakeGame;
+use engine::GameEngine;
 use position::Coordinates;
 use snake::SnakeDirection;
 
@@ -31,7 +31,7 @@ pub async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Initialize the keyboard listener
     let keyboard_listener = KeyboardListener::new(tx_key_event, rx_snake_died);
     // Initialize the snake game
-    let mut main_game = SnakeGame::new(
+    let mut main_game = GameEngine::new(
         upper_left,
         bottom_right,
         SnakeDirection::Right,

@@ -1,5 +1,7 @@
+use std::time::Duration;
+
 // 3rd party crates
-use crossterm::event::Event;
+use crossterm::event::{poll, Event};
 use crossterm::event::{read, KeyCode};
 use tokio::sync::mpsc::{UnboundedReceiver, UnboundedSender};
 
@@ -28,25 +30,27 @@ impl KeyboardListener {
                         }
                     }
                     Err(_err) => {
-                        if let Event::Key(key_event) = read().unwrap() {
-                            match key_event.code {
-                                KeyCode::Down => {
-                                    if let Err(_e) = self.tx_key_event.send(KeyCode::Down) {}
+                        if poll(Duration::from_millis(100)).unwrap() {
+                            if let Event::Key(key_event) = read().unwrap() {
+                                match key_event.code {
+                                    KeyCode::Down => {
+                                        if let Err(_e) = self.tx_key_event.send(KeyCode::Down) {}
+                                    }
+                                    KeyCode::Up => {
+                                        if let Err(_e) = self.tx_key_event.send(KeyCode::Up) {}
+                                    }
+                                    KeyCode::Left => {
+                                        if let Err(_e) = self.tx_key_event.send(KeyCode::Left) {}
+                                    }
+                                    KeyCode::Right => {
+                                        if let Err(_e) = self.tx_key_event.send(KeyCode::Right) {}
+                                    }
+                                    KeyCode::Esc => {
+                                        if let Err(_e) = self.tx_key_event.send(KeyCode::Esc) {}
+                                        break;
+                                    }
+                                    _ => {}
                                 }
-                                KeyCode::Up => {
-                                    if let Err(_e) = self.tx_key_event.send(KeyCode::Up) {}
-                                }
-                                KeyCode::Left => {
-                                    if let Err(_e) = self.tx_key_event.send(KeyCode::Left) {}
-                                }
-                                KeyCode::Right => {
-                                    if let Err(_e) = self.tx_key_event.send(KeyCode::Right) {}
-                                }
-                                KeyCode::Esc => {
-                                    if let Err(_e) = self.tx_key_event.send(KeyCode::Esc) {}
-                                    break;
-                                }
-                                _ => {}
                             }
                         }
                     }
