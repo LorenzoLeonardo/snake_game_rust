@@ -32,7 +32,9 @@ pub async fn main() -> Result<(), Box<dyn std::error::Error>> {
     enable_raw_mode()?;
 
     // Create a channel to send key events from the keyboard listener to the main game
-    let (tx, rx) = unbounded_channel();
+    let (tx_key_event, rx_key_event) = unbounded_channel();
+    let (tx_snake_died, rx_snake_died) = unbounded_channel();
+
     let mut stdout = stdout();
 
     // Clear the terminal and hide the cursor before starting the game
@@ -47,9 +49,15 @@ pub async fn main() -> Result<(), Box<dyn std::error::Error>> {
     draw_board(&mut stdout, &upper_left, &bottom_right)?;
 
     // Initialize the snake game
-    let mut main_game = SnakeGame::new(upper_left, bottom_right, SnakeDirection::Right, rx);
+    let mut main_game = SnakeGame::new(
+        upper_left,
+        bottom_right,
+        SnakeDirection::Right,
+        rx_key_event,
+        tx_snake_died,
+    );
     // Start keyboard listener
-    start_listening_keyboard_input(tx);
+    start_listening_keyboard_input(tx_key_event, rx_snake_died);
     // Start running the game
     main_game.run(&mut stdout).await?;
 

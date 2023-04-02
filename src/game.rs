@@ -9,6 +9,7 @@ use std::time;
 // 3rd party crates
 use crossterm::event::KeyCode;
 use tokio::sync::mpsc::UnboundedReceiver;
+use tokio::sync::mpsc::UnboundedSender;
 
 // My crates
 use crate::food::Food;
@@ -20,7 +21,8 @@ pub struct SnakeGame {
     upper_left: Coordinates,
     bottom_right: Coordinates,
     dir: SnakeDirection,
-    rx: UnboundedReceiver<KeyCode>,
+    rx_key_event: UnboundedReceiver<KeyCode>,
+    tx_snake_died: UnboundedSender<bool>,
 }
 
 impl SnakeGame {
@@ -28,17 +30,19 @@ impl SnakeGame {
         upper_left: Coordinates,
         bottom_right: Coordinates,
         dir: SnakeDirection,
-        rx: UnboundedReceiver<KeyCode>,
+        rx_key_event: UnboundedReceiver<KeyCode>,
+        tx_snake_died: UnboundedSender<bool>,
     ) -> Self {
         Self {
             upper_left,
             bottom_right,
             dir,
-            rx,
+            rx_key_event,
+            tx_snake_died,
         }
     }
     fn listen_for_key_press(&mut self) -> SnakeDirection {
-        match self.rx.try_recv() {
+        match self.rx_key_event.try_recv() {
             Ok(key) => {
                 if key == KeyCode::Up && self.dir != SnakeDirection::Down {
                     SnakeDirection::Up
@@ -86,6 +90,7 @@ impl SnakeGame {
 
             std::thread::sleep(delay);
         }
+        if let Err(_err) = self.tx_snake_died.send(true) {}
         Ok(())
     }
 
