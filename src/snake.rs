@@ -2,10 +2,6 @@
  * Email: enzotechcomputersolutions@gmail.com
  * Date : September 15, 2022
  */
-// Standard libraries
-use std::{borrow::Cow, io::Stdout};
-// 3rd party crates
-use crossterm::{style::Print, ExecutableCommand};
 // My crates
 use crate::position::Coordinates;
 
@@ -19,7 +15,7 @@ pub enum SnakeDirection {
 }
 
 #[derive(Clone)]
-pub struct Snake<'a> {
+pub struct Snake {
     pub snake_body: Vec<Coordinates>,
     pub head: Coordinates,
     pub tail: Coordinates,
@@ -28,15 +24,10 @@ pub struct Snake<'a> {
     pub is_alive: bool,
     pub upper_left: Coordinates,
     pub bottom_right: Coordinates,
-    body_style: Cow<'a, &'a str>,
 }
 
-impl<'a> Snake<'a> {
-    pub fn new(
-        upper_left: Coordinates,
-        bottom_right: Coordinates,
-        body_style: Cow<'a, &'a str>,
-    ) -> Self {
+impl Snake {
+    pub fn new(upper_left: Coordinates, bottom_right: Coordinates) -> Self {
         // Starting positon of the snake must be at the top most part of the board going right
         let snake_body = vec![
             Coordinates::new(upper_left.x + 5, upper_left.y + 1),
@@ -58,23 +49,21 @@ impl<'a> Snake<'a> {
             is_alive: true,
             upper_left,
             bottom_right,
-            body_style,
         }
     }
 
-    pub fn display_snake(&mut self, stdout: &mut Stdout) -> Result<(), Box<dyn std::error::Error>> {
-        let mut i = 0;
-        while i < self.snake_body.len() {
-            stdout
-                .execute(crossterm::cursor::MoveTo(
-                    self.snake_body[i].x,
-                    self.snake_body[i].y,
-                ))?
-                .execute(Print(&self.body_style))?;
+    pub fn display_snake<C>(&mut self, render_snake_body: C)
+    where
+        C: FnOnce(&Vec<Coordinates>),
+    {
+        render_snake_body(&self.snake_body);
+    }
 
-            i += 1;
-        }
-        Ok(())
+    pub fn remove_trail<C>(&mut self, remove_snake_trail: C)
+    where
+        C: FnOnce(&Coordinates),
+    {
+        remove_snake_trail(&self.tail);
     }
 
     pub fn crawl_snake(&mut self) {
@@ -90,14 +79,6 @@ impl<'a> Snake<'a> {
 
         self.check_body_collision();
     }
-
-    pub fn remove_trail(&mut self, stdout: &mut Stdout) -> Result<(), Box<dyn std::error::Error>> {
-        stdout
-            .execute(crossterm::cursor::MoveTo(self.tail.x, self.tail.y))?
-            .execute(Print(" "))?;
-        Ok(())
-    }
-
     pub fn set_direction(&mut self, dir: SnakeDirection) {
         self.direction = dir;
     }
@@ -170,7 +151,7 @@ mod test {
     fn test_crawl_right() {
         let upper_left = Coordinates::new(1, 1);
         let bottom_right = Coordinates::new(80, 25);
-        let mut snake = Snake::new(upper_left, bottom_right, std::borrow::Cow::Owned("█"));
+        let mut snake = Snake::new(upper_left, bottom_right);
 
         snake.set_direction(super::SnakeDirection::Right);
         for _n in 0..100 {
@@ -185,7 +166,7 @@ mod test {
     fn test_crawl_left() {
         let upper_left = Coordinates::new(1, 1);
         let bottom_right = Coordinates::new(80, 25);
-        let mut snake = Snake::new(upper_left, bottom_right, std::borrow::Cow::Owned("█"));
+        let mut snake = Snake::new(upper_left, bottom_right);
 
         snake.set_direction(super::SnakeDirection::Left);
         for _n in 0..100 {
@@ -200,7 +181,7 @@ mod test {
     fn test_crawl_up() {
         let upper_left = Coordinates::new(1, 1);
         let bottom_right = Coordinates::new(80, 25);
-        let mut snake = Snake::new(upper_left, bottom_right, std::borrow::Cow::Owned("█"));
+        let mut snake = Snake::new(upper_left, bottom_right);
 
         snake.set_direction(super::SnakeDirection::Up);
         for _n in 0..100 {
@@ -215,7 +196,7 @@ mod test {
     fn test_crawl_down() {
         let upper_left = Coordinates::new(1, 1);
         let bottom_right = Coordinates::new(80, 25);
-        let mut snake = Snake::new(upper_left, bottom_right, std::borrow::Cow::Owned("█"));
+        let mut snake = Snake::new(upper_left, bottom_right);
 
         snake.set_direction(super::SnakeDirection::Up);
         for _n in 0..100 {

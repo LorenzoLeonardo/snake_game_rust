@@ -1,9 +1,37 @@
-// Standard libraries
-use std::io::Stdout;
-// 3rd party crates
+use std::{borrow::Cow, io::Stdout};
+
 use crossterm::{style::Print, ExecutableCommand};
-// My crates
+
 use crate::position::Coordinates;
+
+pub fn draw_snake(stdout: &mut Stdout, snake_body: &Vec<Coordinates>, body_style: Cow<&str>) {
+    let mut i = 0;
+    while i < snake_body.len() {
+        stdout
+            .execute(crossterm::cursor::MoveTo(snake_body[i].x, snake_body[i].y))
+            .unwrap()
+            .execute(Print(&body_style))
+            .unwrap();
+
+        i += 1;
+    }
+}
+
+pub fn draw_food(stdout: &mut Stdout, food_position: &Coordinates, food_style: Cow<&str>) {
+    stdout
+        .execute(crossterm::cursor::MoveTo(food_position.x, food_position.y))
+        .unwrap()
+        .execute(Print(&food_style))
+        .unwrap();
+}
+
+pub fn remove_snake_trail(stdout: &mut Stdout, body_trail: &Coordinates) {
+    stdout
+        .execute(crossterm::cursor::MoveTo(body_trail.x, body_trail.y))
+        .unwrap()
+        .execute(Print(" "))
+        .unwrap();
+}
 
 pub fn draw_board(
     stdout: &mut Stdout,
