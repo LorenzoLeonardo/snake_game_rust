@@ -1,11 +1,12 @@
-use std::{borrow::Cow, io::Stdout};
-
-use crossterm::{style::Print, ExecutableCommand};
-
 /* Created by: Lorenzo Leonardo
  * Email: enzotechcomputersolutions@gmail.com
  * Date : September 15, 2022
  */
+// Standard libraries
+use std::{borrow::Cow, io::Stdout};
+// 3rd party crates
+use crossterm::{style::Print, ExecutableCommand};
+// My crates
 use crate::position::Coordinates;
 
 #[derive(PartialEq, Copy, Clone)]

@@ -1,7 +1,8 @@
+// Standard libraries
 use std::io::Stdout;
-
+// 3rd party crates
 use crossterm::{style::Print, ExecutableCommand};
-
+// My crates
 use crate::position::Coordinates;
 
 pub fn draw_board(

@@ -3,19 +3,16 @@
  * Date : September 15, 2022
  */
 // Standard libraries
-use std::io::Stdout;
+use std::io::{stdout, Stdout};
 use std::time;
-
 // 3rd party crates
-use crossterm::event::KeyCode;
-use tokio::sync::mpsc::UnboundedReceiver;
-use tokio::sync::mpsc::UnboundedSender;
-
+use crossterm::{cursor, event::KeyCode, terminal, ExecutableCommand};
+use tokio::sync::mpsc::{UnboundedReceiver, UnboundedSender};
 // My crates
+use crate::board::draw_board;
 use crate::food::Food;
 use crate::position::Coordinates;
-use crate::snake::Snake;
-use crate::snake::SnakeDirection;
+use crate::snake::{Snake, SnakeDirection};
 
 pub struct SnakeGame {
     upper_left: Coordinates,
@@ -61,7 +58,16 @@ impl SnakeGame {
             Err(_e) => self.dir,
         }
     }
-    pub async fn run(&mut self, stdout: &mut Stdout) -> Result<(), Box<dyn std::error::Error>> {
+    pub async fn run(&mut self) -> Result<(), Box<dyn std::error::Error>> {
+        let mut stdout = stdout();
+        // Clear the terminal and hide the cursor before starting the game
+        stdout
+            .execute(terminal::Clear(terminal::ClearType::All))?
+            .execute(cursor::Hide)?
+            .execute(cursor::EnableBlinking)?;
+
+        draw_board(&mut stdout, &self.upper_left, &self.bottom_right)?;
+
         let mut snake = Snake::new(
             self.upper_left,
             self.bottom_right,
@@ -80,17 +86,22 @@ impl SnakeGame {
             if self.dir == SnakeDirection::Esc {
                 break;
             }
-            self.draw_snake(&mut snake, self.dir, stdout)?;
-            self.draw_food(&mut food, stdout)?;
+            self.draw_snake(&mut snake, self.dir, &mut stdout)?;
+            self.draw_food(&mut food, &stdout)?;
 
             if snake.head == food.food_position {
                 snake.grow_snake(food.food_position);
                 food.create_food(&snake.snake_body);
             }
 
-            std::thread::sleep(delay);
+            tokio::time::sleep(delay).await;
         }
         if let Err(_err) = self.tx_snake_died.send(true) {}
+
+        // Clear the terminal and show the cursor back before exiting the game
+        stdout
+            .execute(terminal::Clear(terminal::ClearType::All))?
+            .execute(cursor::Show)?;
         Ok(())
     }
 

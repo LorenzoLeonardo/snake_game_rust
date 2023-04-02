@@ -1,12 +1,14 @@
-use std::{borrow::Cow, io::Stdout};
-
 /* Created by: Lorenzo Leonardo
  * Email: enzotechcomputersolutions@gmail.com
  * Date : September 15, 2022
  */
-use crate::position::Coordinates;
+// Standard libraries
+use std::{borrow::Cow, io::Stdout};
+// 3rd party crates
 use crossterm::{style::Print, ExecutableCommand};
 use rand::Rng;
+// My crates
+use crate::position::Coordinates;
 
 pub struct Food<'a> {
     pub food_position: Coordinates,
