@@ -20,5 +20,6 @@ Following rust idoms are used in this game
 
 
 Output of this game:
-https://user-images.githubusercontent.com/97872577/231172440-7df0cac5-d076-472a-b701-67123fa310c8.mp4
 
+<video src="https://user-images.githubusercontent.com/97872577/231172440-7df0cac5-d076-472a-b701-67123fa310c8.mp4" controls="controls" style="max-width: 730px">
+</video>
