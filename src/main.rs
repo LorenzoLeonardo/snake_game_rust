@@ -38,12 +38,12 @@ pub async fn main() -> Result<(), Box<dyn std::error::Error>> {
         rx_key_event,
         tx_snake_died,
     );
-
     // Run keyboard listener
-    keyboard_listener.run();
+    let keyboard_handler = keyboard_listener.run();
     // Run the game
     main_game.run().await?;
-
+    // We make sure all threads are terminated
+    let _ = tokio::join!(keyboard_handler);
     // Need to have this for this to work on Linux environment
     disable_raw_mode()?;
     Ok(())

@@ -1,9 +1,11 @@
+// Standard libraries
 use std::time::Duration;
 
 // 3rd party crates
 use crossterm::event::{poll, Event};
 use crossterm::event::{read, KeyCode};
 use tokio::sync::mpsc::{UnboundedReceiver, UnboundedSender};
+use tokio::task::JoinHandle;
 
 pub struct KeyboardListener {
     tx_key_event: UnboundedSender<KeyCode>,
@@ -20,7 +22,7 @@ impl KeyboardListener {
             rx_snake_died,
         }
     }
-    pub fn run(mut self) {
+    pub fn run(mut self) -> JoinHandle<()> {
         tokio::spawn(async move {
             loop {
                 match self.rx_snake_died.try_recv() {
@@ -56,6 +58,6 @@ impl KeyboardListener {
                     }
                 }
             }
-        });
+        })
     }
 }

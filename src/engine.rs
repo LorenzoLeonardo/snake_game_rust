@@ -3,13 +3,13 @@
  * Date : September 15, 2022
  */
 // Standard libraries
-use std::io::{stdout, Stdout};
+use std::io::Stdout;
 use std::time::Duration;
 // 3rd party crates
-use crossterm::{cursor, event::KeyCode, terminal, ExecutableCommand};
+use crossterm::event::KeyCode;
 use tokio::sync::mpsc::{UnboundedReceiver, UnboundedSender};
 // My crates
-use crate::draw::{draw_board, draw_food, draw_snake, remove_snake_trail};
+use crate::draw::Draw;
 use crate::food::Food;
 use crate::position::Coordinates;
 use crate::snake::{Snake, SnakeDirection};
@@ -59,14 +59,9 @@ impl GameEngine {
         }
     }
     pub async fn run(&mut self) -> Result<(), Box<dyn std::error::Error>> {
-        let mut stdout = stdout();
-        // Clear the terminal and hide the cursor before starting the game
-        stdout
-            .execute(terminal::Clear(terminal::ClearType::All))?
-            .execute(cursor::Hide)?
-            .execute(cursor::EnableBlinking)?;
+        let mut stdout = Draw::initialize_terminal()?;
 
-        draw_board(&mut stdout, &self.upper_left, &self.bottom_right)?;
+        Draw::draw_board(&mut stdout, &self.upper_left, &self.bottom_right)?;
 
         let mut snake = Snake::new(self.upper_left, self.bottom_right);
         let mut food = Food::new(self.upper_left, self.bottom_right);
@@ -90,27 +85,23 @@ impl GameEngine {
         }
         if let Err(_err) = self.tx_snake_died.send(true) {}
 
-        // Clear the terminal and show the cursor back before exiting the game
-        stdout
-            .execute(terminal::Clear(terminal::ClearType::All))?
-            .execute(cursor::Show)?;
-        Ok(())
+        Draw::restore_terminal(stdout)
     }
 
     fn draw_snake(&mut self, snake: &mut Snake, dir: SnakeDirection, stdout: &mut Stdout) {
         snake.remove_trail(|body_trail| {
-            remove_snake_trail(stdout, body_trail);
+            Draw::remove_snake_trail(stdout, body_trail);
         });
         snake.set_direction(dir);
         snake.crawl_snake();
         snake.display_snake(|snake_body| {
-            draw_snake(stdout, snake_body, std::borrow::Cow::Owned("█"));
+            Draw::draw_snake(stdout, snake_body, std::borrow::Cow::Owned("█"));
         });
     }
 
     fn draw_food(&mut self, food: &mut Food, stdout: &mut Stdout) {
         food.display_food(|food_position| {
-            draw_food(stdout, food_position, std::borrow::Cow::Owned("@"));
+            Draw::draw_food(stdout, food_position, std::borrow::Cow::Owned("@"));
         });
     }
 }
