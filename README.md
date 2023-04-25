@@ -1,6 +1,6 @@
 # SnakeGame-Rust
 
-This is a cross-platform terminal snake game using Rust Programming Language.
+This is a cross-platform terminal snake game for Rust Programming Language using tokio run-time.
 
 Following rust idoms are used in this game
 
