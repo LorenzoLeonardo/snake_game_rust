@@ -58,7 +58,9 @@ impl GameEngine {
             Err(_e) => self.dir,
         }
     }
+    /// The game loop
     pub async fn run(&mut self) -> Result<(), Box<dyn std::error::Error>> {
+        // Initialization
         let mut stdout = Draw::initialize_terminal()?;
 
         Draw::draw_board(&mut stdout, &self.upper_left, &self.bottom_right)?;
@@ -68,21 +70,28 @@ impl GameEngine {
         let delay = Duration::from_millis(30);
 
         food.create_food(&snake.snake_body);
+
         while snake.is_alive {
+            // input
             self.dir = self.listen_for_key_press();
             if self.dir == SnakeDirection::Esc {
                 break;
             }
-            self.draw_snake(&mut snake, self.dir, &mut stdout);
-            self.draw_food(&mut food, &mut stdout);
 
+            // update
             if snake.head == food.food_position {
                 snake.grow_snake(food.food_position);
                 food.create_food(&snake.snake_body);
             }
 
+            // render
+            self.draw_snake(&mut snake, self.dir, &mut stdout);
+            self.draw_food(&mut food, &mut stdout);
+
             tokio::time::sleep(delay).await;
         }
+
+        // Shutdown
         if let Err(_err) = self.tx_snake_died.send(true) {}
 
         Draw::restore_terminal(stdout)
