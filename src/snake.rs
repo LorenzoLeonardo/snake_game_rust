@@ -6,7 +6,7 @@
 use crate::position::Coordinates;
 
 #[derive(PartialEq, Copy, Clone)]
-pub enum SnakeDirection {
+pub enum CurrentKeyPressed {
     Up,
     Down,
     Right,
@@ -19,7 +19,7 @@ pub struct Snake {
     pub snake_body: Vec<Coordinates>,
     pub head: Coordinates,
     pub tail: Coordinates,
-    pub direction: SnakeDirection,
+    pub current_key_pressed: CurrentKeyPressed,
     pub length: usize,
     pub is_alive: bool,
     pub upper_left: Coordinates,
@@ -45,7 +45,7 @@ impl Snake {
             snake_body,
             head,
             tail,
-            direction: SnakeDirection::Right,
+            current_key_pressed: CurrentKeyPressed::Right,
             length,
             is_alive: true,
             upper_left,
@@ -69,12 +69,12 @@ impl Snake {
     }
 
     pub fn crawl_snake(&mut self) {
-        match self.direction {
-            SnakeDirection::Right => self.crawl_right(),
-            SnakeDirection::Left => self.crawl_left(),
-            SnakeDirection::Up => self.crawl_up(),
-            SnakeDirection::Down => self.crawl_down(),
-            SnakeDirection::Esc => {}
+        match self.current_key_pressed {
+            CurrentKeyPressed::Right => self.crawl_right(),
+            CurrentKeyPressed::Left => self.crawl_left(),
+            CurrentKeyPressed::Up => self.crawl_up(),
+            CurrentKeyPressed::Down => self.crawl_down(),
+            CurrentKeyPressed::Esc => {}
         }
         self.head = self.snake_body[0];
         self.trail = self.tail;
@@ -82,8 +82,8 @@ impl Snake {
 
         self.check_body_collision();
     }
-    pub fn set_direction(&mut self, dir: SnakeDirection) {
-        self.direction = dir;
+    pub fn set_current_key_pressed(&mut self, current_key_pressed: CurrentKeyPressed) {
+        self.current_key_pressed = current_key_pressed;
     }
 
     pub fn grow_snake(&mut self, pos: Coordinates) {
@@ -156,7 +156,7 @@ mod test {
         let bottom_right = Coordinates::new(80, 25);
         let mut snake = Snake::new(upper_left, bottom_right);
 
-        snake.set_direction(super::SnakeDirection::Right);
+        snake.set_current_key_pressed(super::CurrentKeyPressed::Right);
         for _n in 0..100 {
             snake.crawl_snake();
             if snake.head.x >= bottom_right.x {
@@ -171,7 +171,7 @@ mod test {
         let bottom_right = Coordinates::new(80, 25);
         let mut snake = Snake::new(upper_left, bottom_right);
 
-        snake.set_direction(super::SnakeDirection::Left);
+        snake.set_current_key_pressed(super::CurrentKeyPressed::Left);
         for _n in 0..100 {
             snake.crawl_snake();
             if snake.head.x <= upper_left.x {
@@ -186,7 +186,7 @@ mod test {
         let bottom_right = Coordinates::new(80, 25);
         let mut snake = Snake::new(upper_left, bottom_right);
 
-        snake.set_direction(super::SnakeDirection::Up);
+        snake.set_current_key_pressed(super::CurrentKeyPressed::Up);
         for _n in 0..100 {
             snake.crawl_snake();
             if snake.head.y <= upper_left.y {
@@ -201,7 +201,7 @@ mod test {
         let bottom_right = Coordinates::new(80, 25);
         let mut snake = Snake::new(upper_left, bottom_right);
 
-        snake.set_direction(super::SnakeDirection::Up);
+        snake.set_current_key_pressed(super::CurrentKeyPressed::Up);
         for _n in 0..100 {
             snake.crawl_snake();
             if snake.head.y >= bottom_right.y {
