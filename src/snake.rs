@@ -54,18 +54,18 @@ impl Snake {
         }
     }
 
-    pub fn display_snake<C>(&mut self, render_snake_body: C)
+    pub fn display_snake<C>(&self, render_snake_body: C)
     where
         C: FnOnce(&Vec<Coordinates>),
     {
         render_snake_body(&self.snake_body);
     }
 
-    pub fn remove_trail<C>(&mut self, remove_snake_trail: C)
+    pub fn erase_trail<C>(&self, erase_snake_trail: C)
     where
         C: FnOnce(&Coordinates),
     {
-        remove_snake_trail(&self.trail);
+        erase_snake_trail(&self.trail);
     }
 
     pub fn crawl_snake(&mut self) {

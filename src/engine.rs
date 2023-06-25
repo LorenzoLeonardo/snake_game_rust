@@ -13,18 +13,24 @@ use crate::food::Food;
 use crate::position::Coordinates;
 use crate::snake::{Snake, SnakeDirection};
 
+#[derive(Debug)]
+pub enum SnakeGameState {
+    SnakeDied,
+    Quit,
+}
+
 pub struct GameEngine {
     upper_left: Coordinates,
     bottom_right: Coordinates,
     dir: SnakeDirection,
     rx_key_event: UnboundedReceiver<KeyCode>,
-    tx_snake_died: UnboundedSender<bool>,
+    tx_game_state: UnboundedSender<SnakeGameState>,
 }
 
 impl GameEngine {
     pub fn new(
         rx_key_event: UnboundedReceiver<KeyCode>,
-        tx_snake_died: UnboundedSender<bool>,
+        tx_game_state: UnboundedSender<SnakeGameState>,
     ) -> Self {
         // Initialize the board size
         let upper_left = Coordinates::new(1, 3);
@@ -35,9 +41,10 @@ impl GameEngine {
             bottom_right,
             dir,
             rx_key_event,
-            tx_snake_died,
+            tx_game_state,
         }
     }
+
     fn listen_for_key_press(&mut self) -> SnakeDirection {
         match self.rx_key_event.try_recv() {
             Ok(key) => {
@@ -58,7 +65,7 @@ impl GameEngine {
             Err(_e) => self.dir,
         }
     }
-    /// The game loop
+
     pub async fn run(&mut self) -> Result<(), Box<dyn std::error::Error>> {
         // Initialization
         let mut draw = Draw::init()?;
@@ -67,7 +74,8 @@ impl GameEngine {
         let delay = Duration::from_millis(30);
 
         // Initialize
-        self.initialize(&mut draw, &mut snake, &mut food)?;
+        self.initialize(&mut draw, &snake, &mut food)?;
+
         // game loop
         while snake.is_alive {
             // input
@@ -78,16 +86,24 @@ impl GameEngine {
             // update
             self.update(&mut snake, &mut food);
             // render
-            self.render(&mut snake, &mut food, &mut draw);
+            self.render(&snake, &food, &mut draw);
 
             tokio::time::sleep(delay).await;
         }
         // Shutdown
-        self.shutdown(&mut draw)
+        draw.deinit()?;
+
+        if self.dir == SnakeDirection::Esc {
+            self.shutdown(SnakeGameState::Quit).await;
+        } else {
+            self.shutdown(SnakeGameState::SnakeDied).await;
+        }
+
+        Ok(())
     }
 
-    fn render(&self, snake: &mut Snake, food: &mut Food, draw: &mut Draw) {
-        snake.remove_trail(|body_trail| {
+    fn render(&self, snake: &Snake, food: &Food, draw: &mut Draw) {
+        snake.erase_trail(|body_trail| {
             draw.remove_snake_trail(body_trail);
         });
         snake.display_snake(|snake_body| {
@@ -108,9 +124,9 @@ impl GameEngine {
     }
 
     fn initialize(
-        &mut self,
+        &self,
         draw: &mut Draw,
-        snake: &mut Snake,
+        snake: &Snake,
         food: &mut Food,
     ) -> Result<(), Box<dyn std::error::Error>> {
         draw.draw_board(&self.upper_left, &self.bottom_right)?;
@@ -118,10 +134,9 @@ impl GameEngine {
         Ok(())
     }
 
-    fn shutdown(&mut self, draw: &mut Draw) -> Result<(), Box<dyn std::error::Error>> {
-        if let Err(err) = self.tx_snake_died.send(true) {
+    async fn shutdown(&mut self, state: SnakeGameState) {
+        if let Err(err) = self.tx_game_state.send(state) {
             eprintln!("Error: {:?}", err);
         }
-        draw.deinit()
     }
 }
