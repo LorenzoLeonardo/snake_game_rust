@@ -11,7 +11,7 @@ use tokio::sync::mpsc::{UnboundedReceiver, UnboundedSender};
 use crate::draw::Draw;
 use crate::food::Food;
 use crate::position::Coordinates;
-use crate::snake::{Snake, SnakeDirection};
+use crate::snake::{CurrentKeyPressed, Snake};
 
 #[derive(Debug)]
 pub enum SnakeGameState {
@@ -22,7 +22,7 @@ pub enum SnakeGameState {
 pub struct GameEngine {
     upper_left: Coordinates,
     bottom_right: Coordinates,
-    dir: SnakeDirection,
+    current_key_pressed: CurrentKeyPressed,
     rx_key_event: UnboundedReceiver<KeyCode>,
     tx_game_state: UnboundedSender<SnakeGameState>,
 }
@@ -35,34 +35,39 @@ impl GameEngine {
         // Initialize the board size
         let upper_left = Coordinates::new(1, 3);
         let bottom_right = Coordinates::new(120, 37);
-        let dir = SnakeDirection::Right;
+        let current_key_pressed = CurrentKeyPressed::Right;
         Self {
             upper_left,
             bottom_right,
-            dir,
+            current_key_pressed,
             rx_key_event,
             tx_game_state,
         }
     }
 
-    fn listen_for_key_press(&mut self) -> SnakeDirection {
+    fn listen_for_key_press(&mut self) -> CurrentKeyPressed {
         match self.rx_key_event.try_recv() {
             Ok(key) => {
-                if key == KeyCode::Up && self.dir != SnakeDirection::Down {
-                    SnakeDirection::Up
-                } else if key == KeyCode::Down && self.dir != SnakeDirection::Up {
-                    SnakeDirection::Down
-                } else if key == KeyCode::Left && self.dir != SnakeDirection::Right {
-                    SnakeDirection::Left
-                } else if key == KeyCode::Right && self.dir != SnakeDirection::Left {
-                    SnakeDirection::Right
+                if key == KeyCode::Up && self.current_key_pressed != CurrentKeyPressed::Down {
+                    CurrentKeyPressed::Up
+                } else if key == KeyCode::Down && self.current_key_pressed != CurrentKeyPressed::Up
+                {
+                    CurrentKeyPressed::Down
+                } else if key == KeyCode::Left
+                    && self.current_key_pressed != CurrentKeyPressed::Right
+                {
+                    CurrentKeyPressed::Left
+                } else if key == KeyCode::Right
+                    && self.current_key_pressed != CurrentKeyPressed::Left
+                {
+                    CurrentKeyPressed::Right
                 } else if key == KeyCode::Esc {
-                    SnakeDirection::Esc
+                    CurrentKeyPressed::Esc
                 } else {
-                    self.dir
+                    self.current_key_pressed
                 }
             }
-            Err(_e) => self.dir,
+            Err(_e) => self.current_key_pressed,
         }
     }
 
@@ -79,8 +84,8 @@ impl GameEngine {
         // game loop
         while snake.is_alive {
             // input
-            self.dir = self.listen_for_key_press();
-            if self.dir == SnakeDirection::Esc {
+            self.current_key_pressed = self.listen_for_key_press();
+            if self.current_key_pressed == CurrentKeyPressed::Esc {
                 break;
             }
             // update
@@ -93,7 +98,7 @@ impl GameEngine {
         // Shutdown
         draw.deinit()?;
 
-        if self.dir == SnakeDirection::Esc {
+        if self.current_key_pressed == CurrentKeyPressed::Esc {
             self.shutdown(SnakeGameState::Quit).await;
         } else {
             self.shutdown(SnakeGameState::SnakeDied).await;
@@ -119,7 +124,7 @@ impl GameEngine {
             snake.grow_snake(food.food_position);
             food.create_food(&snake.snake_body);
         }
-        snake.set_direction(self.dir);
+        snake.set_current_key_pressed(self.current_key_pressed);
         snake.crawl_snake();
     }
 
