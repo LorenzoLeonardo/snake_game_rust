@@ -22,7 +22,7 @@ impl KeyboardListener {
             rx_snake_died,
         }
     }
-    pub fn run(mut self) -> JoinHandle<()> {
+    pub async fn run(mut self) -> JoinHandle<()> {
         tokio::spawn(async move {
             loop {
                 match self.rx_snake_died.try_recv() {
