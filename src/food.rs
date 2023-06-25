@@ -39,7 +39,7 @@ impl Food {
         }
     }
 
-    pub fn display_food<C>(&mut self, render_food: C)
+    pub fn display_food<C>(&self, render_food: C)
     where
         C: FnOnce(&Coordinates),
     {
