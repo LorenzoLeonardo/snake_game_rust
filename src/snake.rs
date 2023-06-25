@@ -24,6 +24,7 @@ pub struct Snake {
     pub is_alive: bool,
     pub upper_left: Coordinates,
     pub bottom_right: Coordinates,
+    pub trail: Coordinates,
 }
 
 impl Snake {
@@ -39,7 +40,7 @@ impl Snake {
         let length = snake_body.len();
         let head = snake_body[0];
         let tail = snake_body[length - 1];
-
+        let trail = Coordinates::new(upper_left.x, upper_left.y + 1);
         Self {
             snake_body,
             head,
@@ -49,6 +50,7 @@ impl Snake {
             is_alive: true,
             upper_left,
             bottom_right,
+            trail,
         }
     }
 
@@ -63,7 +65,7 @@ impl Snake {
     where
         C: FnOnce(&Coordinates),
     {
-        remove_snake_trail(&self.tail);
+        remove_snake_trail(&self.trail);
     }
 
     pub fn crawl_snake(&mut self) {
@@ -75,6 +77,7 @@ impl Snake {
             SnakeDirection::Esc => {}
         }
         self.head = self.snake_body[0];
+        self.trail = self.tail;
         self.tail = self.snake_body[self.length - 1];
 
         self.check_body_collision();
