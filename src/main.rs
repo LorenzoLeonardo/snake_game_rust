@@ -26,7 +26,7 @@ pub async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut main_game = GameEngine::new(rx_key_event, tx_snake_died);
 
     // Run keyboard listener
-    let keyboard_handler = keyboard_listener.run();
+    let keyboard_handler = keyboard_listener.run().await;
     // Run the game
     main_game.run().await?;
 
