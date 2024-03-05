@@ -37,7 +37,7 @@ impl Draw {
         Ok(())
     }
 
-    pub fn draw_snake(&mut self, snake_body: &Vec<Coordinates>, body_style: Cow<&str>) {
+    pub fn draw_snake(&mut self, snake_body: &[Coordinates], body_style: Cow<&str>) {
         let mut i = 0;
         while i < snake_body.len() {
             self.stdout
